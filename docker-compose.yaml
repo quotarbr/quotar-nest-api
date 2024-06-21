@@ -1,9 +1,26 @@
+version: '3.8'
+
 services:
-  db:
-    image: mariadb:10.5.8
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    hostname: db
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MARIADB_USER: user
+      MARIADB_PASSWORD: senha12345
+      MYSQL_ROOT_PASSWORD: senharoot123
       MYSQL_DATABASE: quotar-db
+    volumes:
+      - mariadb_data:/var/lib/mysql
     ports:
       - 3306:3306
-  
+    networks:
+      - REDE1
+
+volumes:
+  mariadb_data:
+    name: VOL1
+
+networks:
+  REDE1:
+    external: true
