@@ -1,0 +1,352 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model bairros {
+  bai_id     Int          @id @default(autoincrement())
+  bai_nome   String?      @db.VarChar(50)
+  cid_id     Int?
+  cidades    cidades?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "cid_id")
+  lojas      Loja[]
+  lojistas   lojistas[]
+  usuarios   usuarios[]
+  visitantes visitantes[]
+
+  @@index([cid_id], map: "cid_id")
+}
+
+model categorias {
+  cat_id Int     @id @default(autoincrement())
+  nome   String? @db.VarChar(150)
+  tipos  Tipo[]
+}
+
+model cidades {
+  cid_id     Int          @id @default(autoincrement())
+  cid_nome   String?      @db.VarChar(50)
+  est_id     Int?
+  bairros    bairros[]
+  estados    estados?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "est_id")
+  lojas      Loja[]
+  lojistas   lojistas[]
+  usuarios   usuarios[]
+  visitantes visitantes[]
+
+  @@index([est_id], map: "est_id")
+}
+
+model estados {
+  est_id     Int          @id @default(autoincrement())
+  est_nome   String?      @db.VarChar(50)
+  cidades    cidades[]
+  lojas      Loja[]
+  lojistas   lojistas[]
+  usuarios   usuarios[]
+  visitantes visitantes[]
+}
+
+model faturas {
+  fatr_id              Int                        @id @default(autoincrement())
+  fatr_numero          Int?
+  fatr_data_emissao    DateTime?                  @default(now()) @db.DateTime(0)
+  fatr_data_vencimento DateTime?                  @db.DateTime(0)
+  fatr_total           Decimal?                   @db.Decimal(10, 2)
+  fatr_pagmt_metodo    faturas_fatr_pagmt_metodo?
+  fatr_pagmt_data      DateTime?                  @db.DateTime(0)
+  fatr_status          faturas_fatr_status?
+  lojst_id             Int?
+  pln_id               Int?
+  lojistas             lojistas?                  @relation(fields: [lojst_id], references: [lojst_id], onDelete: Restrict, onUpdate: Restrict, map: "faturas_ibfk_1")
+  planos               planos?                    @relation(fields: [pln_id], references: [pln_id], onDelete: Restrict, onUpdate: Restrict, map: "faturas_ibfk_2")
+
+  @@index([lojst_id], map: "lojst_id")
+  @@index([pln_id], map: "pln_id")
+}
+
+model Loja {
+  loj_id              Int                   @id @default(autoincrement())
+  loj_nome            String?               @db.VarChar(100)
+  loj_cnpj            String?               @db.VarChar(14)
+  loj_logo            String?               @db.VarChar(255)
+  loj_slogan          String?               @db.VarChar(255)
+  loj_telefone        String?               @db.VarChar(20)
+  loj_email           String?               @db.VarChar(150)
+  loj_text_sobre      String?               @db.VarChar(255)
+  loj_cep             String?               @db.VarChar(10)
+  loj_endereco        String?               @db.VarChar(150)
+  loj_data_cadastro   DateTime?             @default(now()) @db.DateTime(0)
+  cid_id              Int?
+  bai_id              Int?
+  est_id              Int?
+  lojst_id            Int?
+  lojistas            lojistas?             @relation(fields: [lojst_id], references: [lojst_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_loj_lojst_id")
+  cidades             cidades?              @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_1")
+  bairros             bairros?              @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_2")
+  estados             estados?              @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_3")
+  orcamento_variantes orcamento_variantes[]
+  Produto             Produto[]
+
+  @@index([bai_id], map: "bai_id")
+  @@index([cid_id], map: "cid_id")
+  @@index([est_id], map: "est_id")
+  @@index([lojst_id], map: "lojst_id")
+  @@map("lojas")
+}
+
+model lojistas {
+  lojst_id                Int                       @id @default(autoincrement())
+  lojst_nome              String?                   @db.VarChar(100)
+  lojst_cpf               String?                   @db.VarChar(11)
+  lojst_img_perfil        String?                   @db.VarChar(255)
+  lojst_telefone          String?                   @db.VarChar(20)
+  lojst_email             String?                   @db.VarChar(150)
+  lojst_data_cadastro     DateTime?                 @default(now()) @db.DateTime(0)
+  lojst_cep               String?                   @db.VarChar(10)
+  lojst_endereco          String?                   @db.VarChar(150)
+  lojst_status            lojistas_lojst_status?
+  lojst_loguin            String?                   @db.VarChar(50)
+  lojst_senha_hash        String?                   @db.VarChar(255)
+  lojst_token_inspiracao  String?                   @db.VarChar(255)
+  lojst_token_recuperacao String?                   @db.VarChar(255)
+  cid_id                  Int?
+  bai_id                  Int?
+  est_id                  Int?
+  lojst_loja_parceira     String?                   @db.LongText
+  faturas                 faturas[]
+  lojas                   Loja[]
+  cidades                 cidades?                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_1")
+  bairros                 bairros?                  @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_2")
+  estados                 estados?                  @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_3")
+  permissoes_notificacoes permissoes_notificacoes[]
+
+  @@index([bai_id], map: "bai_id")
+  @@index([cid_id], map: "cid_id")
+  @@index([est_id], map: "est_id")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model opcoes {
+  opc_id      Int     @id @default(autoincrement())
+  opc_nome    String? @db.VarChar(100)
+  opc_valores String  @db.LongText
+  prodt_id    Int
+  produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
+
+  @@index([prodt_id], map: "fk_prodt_id")
+}
+
+model orcamento_variantes {
+  orc_vrnt_id               Int         @id @default(autoincrement())
+  orc_vrnt_quantidade_prodt Int?        @db.UnsignedInt
+  orc_vrnt_preco_total      Decimal?    @db.Decimal(10, 2)
+  loj_id                    Int?
+  orcto_id                  Int?
+  vrnt_id                   Int
+  lojas                     Loja?       @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamento_variantes_ibfk_1")
+  orcamentos                orcamentos? @relation(fields: [orcto_id], references: [orcto_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamento_variantes_ibfk_4")
+  variantes                 variantes   @relation(fields: [vrnt_id], references: [vrnt_id], onUpdate: Restrict, map: "vrnt_id")
+
+  @@index([loj_id], map: "loj_id")
+  @@index([orcto_id], map: "orcto_id")
+  @@index([vrnt_id], map: "vrnt_id")
+}
+
+model orcamentos {
+  orcto_id               Int                   @id @default(autoincrement())
+  orcto_data_emissao     DateTime?             @default(now()) @db.DateTime(0)
+  orcto_quantidade_prodt Int?                  @db.UnsignedInt
+  orcto_total            Decimal?              @db.Decimal(10, 2)
+  orcto_fav              Boolean?
+  usr_id                 Int?
+  vist_id                Int?
+  orcamento_variantes    orcamento_variantes[]
+  usuarios               usuarios?             @relation(fields: [usr_id], references: [usr_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_1")
+  visitantes             visitantes?           @relation(fields: [vist_id], references: [vist_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_2")
+
+  @@index([usr_id], map: "usr_id")
+  @@index([vist_id], map: "vist_id")
+}
+
+model permissoes_notificacoes {
+  permi_id    Int                                 @id @default(autoincrement())
+  permi_tipo  permissoes_notificacoes_permi_tipo?
+  permi_ativa Boolean?                            @default(true)
+  lojst_id    Int?
+  usr_id      Int?
+  lojistas    lojistas?                           @relation(fields: [lojst_id], references: [lojst_id], onDelete: Restrict, onUpdate: Restrict, map: "permissoes_notificacoes_ibfk_1")
+  usuarios    usuarios?                           @relation(fields: [usr_id], references: [usr_id], onDelete: Restrict, onUpdate: Restrict, map: "permissoes_notificacoes_ibfk_2")
+
+  @@index([lojst_id], map: "lojst_id")
+  @@index([usr_id], map: "usr_id")
+}
+
+model planos {
+  pln_id    Int       @id @default(autoincrement())
+  pln_nome  String?   @db.VarChar(100)
+  pln_desc  String?   @db.VarChar(150)
+  pln_preco Decimal?  @db.Decimal(10, 2)
+  faturas   faturas[]
+}
+
+model Produto {
+  prodt_id         Int         @id @default(autoincrement())
+  prodt_fotos      String?     @db.LongText
+  prodt_nome       String?     @db.VarChar(100)
+  prodt_descricao  String?     @db.VarChar(255)
+  prodt_updated_at DateTime    @db.Timestamp(0)
+  prodt_created_at DateTime    @default(now()) @db.Timestamp(0)
+  loj_id           Int?
+  tp_id            Int?
+  opcoes           opcoes[]
+  variantes        variantes[]
+  tipos            Tipo?       @relation(fields: [tp_id], references: [tp_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_tp_id")
+  lojas            Loja?       @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "loj_id")
+
+  @@index([loj_id], map: "loj_id")
+  @@index([tp_id], map: "fk_tp_id")
+  @@map("produtos")
+}
+
+model sessions {
+  id            String  @id @db.VarChar(255)
+  user_id       BigInt? @db.UnsignedBigInt
+  ip_address    String? @db.VarChar(45)
+  user_agent    String? @db.Text
+  payload       String  @db.LongText
+  last_activity Int
+
+  @@index([last_activity], map: "sessions_last_activity_index")
+  @@index([user_id], map: "sessions_user_id_index")
+}
+
+model Tipo {
+  tp_id      Int         @id @default(autoincrement())
+  tp_nome    String?     @db.VarChar(150)
+  cat_id     Int?
+  produtos   Produto[]
+  categorias categorias? @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")
+
+  @@index([cat_id], map: "cat_id")
+}
+
+model tipos_preco {
+  tp_prec_id   Int         @id @default(autoincrement())
+  tp_prec_nome String?     @db.VarChar(100)
+  variantes    variantes[]
+}
+
+model users {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String    @db.VarChar(255)
+  email             String    @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
+
+model usuarios {
+  usr_id                  Int                       @id @default(autoincrement())
+  usr_nome                String?                   @db.VarChar(100)
+  usr_cpf                 String?                   @db.VarChar(11)
+  usr_img_perfil          String?                   @db.VarChar(255)
+  usr_telefone            String?                   @db.VarChar(20)
+  usr_email               String?                   @db.VarChar(150)
+  usr_data_cadastro       DateTime?                 @default(now()) @db.DateTime(0)
+  usr_cep                 String?                   @db.VarChar(10)
+  usr_endereco            String?                   @db.VarChar(150)
+  usr_status              usuarios_usr_status?
+  cid_id                  Int?
+  bai_id                  Int?
+  est_id                  Int?
+  usr_prod_favoritos      String?                   @db.LongText
+  usr_loj_favoritas       String?                   @db.LongText
+  usr_loguin              String?                   @db.VarChar(50)
+  usr_senha_hash          String?                   @db.VarChar(255)
+  usr_token_inspiracao    String?                   @db.VarChar(255)
+  usr_token_recuperaca    String?                   @db.VarChar(255)
+  orcamentos              orcamentos[]
+  permissoes_notificacoes permissoes_notificacoes[]
+  cidades                 cidades?                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "usuarios_ibfk_1")
+  bairros                 bairros?                  @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "usuarios_ibfk_2")
+  estados                 estados?                  @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "usuarios_ibfk_3")
+
+  @@index([bai_id], map: "bai_id")
+  @@index([cid_id], map: "cid_id")
+  @@index([est_id], map: "est_id")
+}
+
+model variantes {
+  vrnt_id             Int                   @id @default(autoincrement())
+  vrnt_fotos          String                @db.LongText
+  vrnt_preco          Decimal               @db.Decimal(10, 2)
+  vrnt_opcoes         String                @db.LongText
+  prodt_id            Int?
+  tp_prec_id          Int
+  orcamento_variantes orcamento_variantes[]
+  produtos            Produto?              @relation(fields: [prodt_id], references: [prodt_id], onDelete: Restrict, onUpdate: Restrict, map: "prodt_id")
+  tipos_preco         tipos_preco           @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
+
+  @@index([prodt_id], map: "prodt_id")
+  @@index([tp_prec_id], map: "tp_prec_id")
+}
+
+model visitantes {
+  vist_id       Int          @id @default(autoincrement())
+  vist_nome     String?      @db.VarChar(100)
+  vist_telefone String?      @db.VarChar(20)
+  vist_email    String?      @db.VarChar(150)
+  vist_endereco String?      @db.VarChar(150)
+  cid_id        Int?
+  bai_id        Int?
+  est_id        Int?
+  orcamentos    orcamentos[]
+  bairros       bairros?     @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_bairro")
+  cidades       cidades?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_cidade")
+  estados       estados?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_estado")
+
+  @@index([bai_id], map: "bai_id")
+  @@index([cid_id], map: "cid_id")
+  @@index([est_id], map: "est_id")
+}
+
+enum permissoes_notificacoes_permi_tipo {
+  orcamento
+}
+
+enum faturas_fatr_pagmt_metodo {
+  cartao_credito
+  cartao_debito
+  transferencia
+  boleto
+  pix
+}
+
+enum faturas_fatr_status {
+  ativa
+  inativa
+  pendente
+}
+
+enum usuarios_usr_status {
+  ativo
+  inativo
+  pendente
+}
+
+enum lojistas_lojst_status {
+  ativo
+  pendente
+  inativo
+}
