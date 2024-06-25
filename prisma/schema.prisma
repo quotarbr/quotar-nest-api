@@ -13,17 +13,18 @@ model bairros {
   cid_id     Int?
   cidades    cidades?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "cid_id")
   lojas      Loja[]
-  lojistas   lojistas[]
+  lojistas   lojistas[]                     
   usuarios   usuarios[]
   visitantes visitantes[]
 
   @@index([cid_id], map: "cid_id")
 }
 
-model categorias {
+model Categoria {
   cat_id Int     @id @default(autoincrement())
   nome   String? @db.VarChar(150)
   tipos  Tipo[]
+	@@map("categorias")
 }
 
 model cidades {
@@ -88,8 +89,8 @@ model Loja {
   cidades             cidades?              @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_1")
   bairros             bairros?              @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_2")
   estados             estados?              @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_3")
-  orcamento_variantes orcamento_variantes[]
-  Produto             Produto[]
+  orcamento_variantes Orcamento_variante[]
+  produtos            Produto[]
 
   @@index([bai_id], map: "bai_id")
   @@index([cid_id], map: "cid_id")
@@ -135,7 +136,7 @@ model migrations {
   batch     Int
 }
 
-model opcoes {
+model Opcao {
   opc_id      Int     @id @default(autoincrement())
   opc_nome    String? @db.VarChar(100)
   opc_valores String  @db.LongText
@@ -143,9 +144,10 @@ model opcoes {
   produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
 
   @@index([prodt_id], map: "fk_prodt_id")
+	@@map("opcoes")
 }
 
-model orcamento_variantes {
+model Orcamento_variante {
   orc_vrnt_id               Int         @id @default(autoincrement())
   orc_vrnt_quantidade_prodt Int?        @db.UnsignedInt
   orc_vrnt_preco_total      Decimal?    @db.Decimal(10, 2)
@@ -153,15 +155,16 @@ model orcamento_variantes {
   orcto_id                  Int?
   vrnt_id                   Int
   lojas                     Loja?       @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamento_variantes_ibfk_1")
-  orcamentos                orcamentos? @relation(fields: [orcto_id], references: [orcto_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamento_variantes_ibfk_4")
-  variantes                 variantes   @relation(fields: [vrnt_id], references: [vrnt_id], onUpdate: Restrict, map: "vrnt_id")
+  orcamentos                Orcamento? @relation(fields: [orcto_id], references: [orcto_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamento_variantes_ibfk_4")
+  variantes                 Variante   @relation(fields: [vrnt_id], references: [vrnt_id], onUpdate: Restrict, map: "vrnt_id")
 
   @@index([loj_id], map: "loj_id")
   @@index([orcto_id], map: "orcto_id")
   @@index([vrnt_id], map: "vrnt_id")
+	@@map("orcamento_variantes")
 }
 
-model orcamentos {
+model Orcamento {
   orcto_id               Int                   @id @default(autoincrement())
   orcto_data_emissao     DateTime?             @default(now()) @db.DateTime(0)
   orcto_quantidade_prodt Int?                  @db.UnsignedInt
@@ -169,12 +172,13 @@ model orcamentos {
   orcto_fav              Boolean?
   usr_id                 Int?
   vist_id                Int?
-  orcamento_variantes    orcamento_variantes[]
+  orcamento_variantes    Orcamento_variante[]
   usuarios               usuarios?             @relation(fields: [usr_id], references: [usr_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_1")
   visitantes             visitantes?           @relation(fields: [vist_id], references: [vist_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_2")
 
   @@index([usr_id], map: "usr_id")
   @@index([vist_id], map: "vist_id")
+	@@map("orcamentos")
 }
 
 model permissoes_notificacoes {
@@ -207,8 +211,8 @@ model Produto {
   prodt_created_at DateTime    @default(now()) @db.Timestamp(0)
   loj_id           Int?
   tp_id            Int?
-  opcoes           opcoes[]
-  variantes        variantes[]
+  opcoes           Opcao[]
+  variantes        Variante[]
   tipos            Tipo?       @relation(fields: [tp_id], references: [tp_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_tp_id")
   lojas            Loja?       @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "loj_id")
 
@@ -234,15 +238,18 @@ model Tipo {
   tp_nome    String?     @db.VarChar(150)
   cat_id     Int?
   produtos   Produto[]
-  categorias categorias? @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")
+  categorias Categoria? @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")
 
   @@index([cat_id], map: "cat_id")
+
+  @@map("tipos")
 }
 
-model tipos_preco {
+model Tipos_preco {
   tp_prec_id   Int         @id @default(autoincrement())
   tp_prec_nome String?     @db.VarChar(100)
-  variantes    variantes[]
+  variantes    Variante[]
+	@@map("tipos_precos")
 }
 
 model users {
@@ -276,7 +283,7 @@ model usuarios {
   usr_senha_hash          String?                   @db.VarChar(255)
   usr_token_inspiracao    String?                   @db.VarChar(255)
   usr_token_recuperaca    String?                   @db.VarChar(255)
-  orcamentos              orcamentos[]
+  orcamentos              Orcamento[]
   permissoes_notificacoes permissoes_notificacoes[]
   cidades                 cidades?                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "usuarios_ibfk_1")
   bairros                 bairros?                  @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "usuarios_ibfk_2")
@@ -287,19 +294,20 @@ model usuarios {
   @@index([est_id], map: "est_id")
 }
 
-model variantes {
+model Variante {
   vrnt_id             Int                   @id @default(autoincrement())
   vrnt_fotos          String                @db.LongText
   vrnt_preco          Decimal               @db.Decimal(10, 2)
   vrnt_opcoes         String                @db.LongText
   prodt_id            Int?
   tp_prec_id          Int
-  orcamento_variantes orcamento_variantes[]
+  orcamento_variantes Orcamento_variante[]
   produtos            Produto?              @relation(fields: [prodt_id], references: [prodt_id], onDelete: Restrict, onUpdate: Restrict, map: "prodt_id")
-  tipos_preco         tipos_preco           @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
+  tipos_precos        Tipos_preco           @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
 
   @@index([prodt_id], map: "prodt_id")
   @@index([tp_prec_id], map: "tp_prec_id")
+	@@map("variantes")
 }
 
 model visitantes {
@@ -311,7 +319,7 @@ model visitantes {
   cid_id        Int?
   bai_id        Int?
   est_id        Int?
-  orcamentos    orcamentos[]
+  orcamentos    Orcamento[]
   bairros       bairros?     @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_bairro")
   cidades       cidades?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_cidade")
   estados       estados?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_estado")
