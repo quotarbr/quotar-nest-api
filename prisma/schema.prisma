@@ -5,13 +5,14 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Bairro {
   bai_id     Int          @id @default(autoincrement())
   bai_nome   String?      @db.VarChar(50)
   cid_id     Int?
-  cidades    Cidade?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "cid_id")
+  cidades    Cidade?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Cascade, map: "cid_id")
   lojas      Loja[]
   lojistas   Lojista[]                     
   usuarios   Usuario[]
@@ -33,7 +34,7 @@ model Cidade {
   cid_nome   String?      @db.VarChar(50)
   est_id     Int?
   bairros    Bairro[]
-  estados    Estado?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "est_id")
+  estados    Estado?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Cascade, map: "est_id")
   lojas      Loja[]
   lojistas   Lojista[]
   usuarios   Usuario[]
@@ -169,6 +170,8 @@ model Orcamento {
   orcto_quantidade_prodt Int?                  @db.UnsignedInt
   orcto_total            Decimal?              @db.Decimal(10, 2)
   orcto_fav              Boolean?
+  orcto_creatAt          DateTime              @default(now())
+  orcto_updateAt         DateTime              @updatedAt
   usr_id                 Int?
   vist_id                Int?
   orcamento_variantes    Orcamento_variante[]
@@ -208,8 +211,8 @@ model Produto {
   prodt_fotos      String?     @db.LongText
   prodt_nome       String?     @db.VarChar(100)
   prodt_descricao  String?     @db.VarChar(255)
-  prodt_updated_at DateTime    @db.Timestamp(0)
-  prodt_created_at DateTime    @default(now()) @db.Timestamp(0)
+  prodt_created_at DateTime    @default(now())
+  prodt_updated_at DateTime    @updatedAt
   loj_id           Int?
   tp_id            Int?
   opcoes           Opcao[]
