@@ -207,18 +207,19 @@ model Planos {
 }
 
 model Produto {
-  prodt_id         Int         @id @default(autoincrement())
-  prodt_fotos      String?     @db.LongText
-  prodt_nome       String?     @db.VarChar(100)
-  prodt_descricao  String?     @db.VarChar(255)
-  prodt_created_at DateTime    @default(now())
-  prodt_updated_at DateTime    @updatedAt
+  prodt_id         Int            @id @default(autoincrement())
+  prodt_fotos      String?        @db.LongText
+  prodt_nome       String?        @db.VarChar(100)
+  prodt_descricao  String?        @db.VarChar(255)
+  prodt_status     PRODT_STATUS?
+  prodt_created_at DateTime       @default(now())
+  prodt_updated_at DateTime       @updatedAt
   loj_id           Int?
   tp_id            Int?
   opcoes           Opcao[]
   variantes        Variante[]
-  tipos            Tipo?       @relation(fields: [tp_id], references: [tp_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_tp_id")
-  lojas            Loja?       @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "loj_id")
+  tipos            Tipo?          @relation(fields: [tp_id], references: [tp_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_tp_id")
+  lojas            Loja?          @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "loj_id")
 
   @@index([loj_id], map: "loj_id")
   @@index([tp_id], map: "fk_tp_id")
@@ -310,6 +311,12 @@ model Visitante {
   @@index([cid_id], map: "cid_id")
   @@index([est_id], map: "est_id")
 	@@map("visitantes")
+}
+
+enum PRODT_STATUS {
+  ativo
+  liberacao
+  inativo
 }
 
 enum PERMI_TIPO {
