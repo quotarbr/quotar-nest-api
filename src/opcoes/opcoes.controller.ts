@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { OpcoesService } from './opcoes.service';
-import { CreateOpcoeDto } from './dto/create-opcoe.dto';
+import { CreateOpcaoDto } from './dto/create-opcao.dto';
 import { UpdateOpcoeDto } from './dto/update-opcoe.dto';
 
 @Controller('opcoes')
@@ -8,7 +8,7 @@ export class OpcoesController {
   constructor(private readonly opcoesService: OpcoesService) {}
 
   @Post()
-  create(@Body() createOpcoeDto: CreateOpcoeDto) {
+  create(@Body() createOpcoeDto: CreateOpcaoDto) {
     return this.opcoesService.create(createOpcoeDto);
   }
 

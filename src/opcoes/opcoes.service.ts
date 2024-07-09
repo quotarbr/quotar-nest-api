@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOpcoeDto } from './dto/create-opcoe.dto';
+import { CreateOpcaoDto } from './dto/create-opcao.dto';
 import { UpdateOpcoeDto } from './dto/update-opcoe.dto';
 
 @Injectable()
 export class OpcoesService {
-  create(createOpcoeDto: CreateOpcoeDto) {
+  create(createOpcoeDto: CreateOpcaoDto) {
     return 'This action adds a new opcoe';
   }
 

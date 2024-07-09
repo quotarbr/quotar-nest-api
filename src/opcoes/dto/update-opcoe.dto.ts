@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateOpcoeDto } from './create-opcoe.dto';
+import { CreateOpcaoDto } from './create-opcao.dto';
 
-export class UpdateOpcoeDto extends PartialType(CreateOpcoeDto) {}
+export class UpdateOpcoeDto extends PartialType(CreateOpcaoDto) {}
