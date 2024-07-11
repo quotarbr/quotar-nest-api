@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTipoDto } from './dto/create-tipo.dto';
+import { TipoDto } from './dto/tipo.dto';
 import { UpdateTipoDto } from './dto/update-tipo.dto';
 
 @Injectable()
 export class TiposService {
-  create(createTipoDto: CreateTipoDto) {
+  create(createTipoDto: TipoDto) {
     return 'This action adds a new tipo';
   }
 

@@ -15,9 +15,12 @@ export class ProdutosService {
       prodt_fotos: await this.uploadFotos(createProdutoDto.prodt_fotos),
       prodt_nome: createProdutoDto.prodt_nome,
       prodt_descricao: createProdutoDto.prodt_descricao,
-      // loj_id: null,
-      // tp_id: createProdutoDto.prodt_tipo.id
+      // loj_id: , // A api que vai autenticar 
+      tp_id: createProdutoDto.prodt_tipo.tp_ip
     };
+
+    //criar tbm aqui as relacoes 
+    //chamar a service de todas e salvar tbm 
     
     return this.prismaService.produto.create({ data })
   }
