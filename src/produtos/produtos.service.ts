@@ -1,28 +1,42 @@
 import { BadRequestException, Injectable, Response } from '@nestjs/common';
-import { CreateProdutoDto } from './dto/create-produto.dto';
+import { ReqProdutoDto } from './dto/req-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { FotoDto } from './dto/foto.dto';
+import { OpcoesService } from 'src/opcoes/opcoes.service';
+import { OpcaoDto } from 'src/opcoes/dto/opcao.dto';
+import { CategoriasService } from 'src/categorias/categorias.service';
 
 @Injectable()
 export class ProdutosService {
 
-  constructor(private prismaService: PrismaService){}
+  constructor(
+    private prismaService: PrismaService,
+    private categoriasService: CategoriasService,
+    private opcoesService: OpcoesService
+  ){}
 
-  async create(createProdutoDto: CreateProdutoDto) {    
-    const data: Prisma.ProdutoUncheckedCreateInput = {
-      prodt_fotos: await this.uploadFotos(createProdutoDto.prodt_fotos),
-      prodt_nome: createProdutoDto.prodt_nome,
-      prodt_descricao: createProdutoDto.prodt_descricao,
-      // loj_id: , // A api que vai autenticar 
-      tp_id: createProdutoDto.prodt_tipo.tp_ip
-    };
-
-    //criar tbm aqui as relacoes 
-    //chamar a service de todas e salvar tbm 
+  async create(reqProdutoDto: ReqProdutoDto) {    
+    //categoria
+    const categoria = this.categoriasService.create(reqProdutoDto.prodt_categoria);
+    //tipo
     
-    return this.prismaService.produto.create({ data })
+    //produto
+
+
+    const data: Prisma.ProdutoUncheckedCreateInput = {
+      prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
+      prodt_nome: reqProdutoDto.prodt_nome,
+      prodt_descricao: reqProdutoDto.prodt_descricao,
+      // loj_id: , // A api que vai autenticar 
+      tp_id: reqProdutoDto.prodt_tipo.tp_ip,
+    };
+    await this.prismaService.produto.create({ data });
+    
+
+    // this.opcoesService.create(reqProdutoDto.prodt_opcoes, produto.prodt_id );
+    return 'Produto criado com sucesso'
   }
 
   findAll() {

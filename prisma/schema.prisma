@@ -24,7 +24,7 @@ model Bairro {
 
 model Categoria {
   cat_id Int     @id @default(autoincrement())
-  nome   String? @db.VarChar(150)
+  nome   String @db.VarChar(150)
   tipos  Tipo[]
 
   @@map("categorias")
@@ -140,7 +140,7 @@ model Lojista {
 
 model Opcao {
   opc_id      Int     @id @default(autoincrement())
-  opc_nome    String? @db.VarChar(100)
+  opc_nome    String @db.VarChar(100)
   opc_valores String  @db.LongText
   prodt_id    Int
   produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
@@ -212,16 +212,16 @@ model Planos {
 model Produto {
   prodt_id         Int           @id @default(autoincrement())
   prodt_fotos      String?       @db.LongText
-  prodt_nome       String?       @db.VarChar(100)
+  prodt_nome       String       @db.VarChar(100)
   prodt_descricao  String?       @db.VarChar(255)
   prodt_created_at DateTime      @default(now())
   prodt_updated_at DateTime      @updatedAt
-  loj_id           Int?
-  tp_id            Int?
-  prodt_status     PRODT_STATUS?
+  loj_id           Int
+  tp_id            Int
+  prodt_status     PRODT_STATUS
   opcoes           Opcao[]
-  tipos            Tipo?         @relation(fields: [tp_id], references: [tp_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_tp_id")
-  lojas            Loja?         @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "loj_id")
+  tipos            Tipo         @relation(fields: [tp_id], references: [tp_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_tp_id")
+  lojas            Loja         @relation(fields: [loj_id], references: [loj_id], onDelete: Restrict, onUpdate: Restrict, map: "loj_id")
   variantes        Variante[]
 
   @@index([loj_id], map: "loj_id")
@@ -231,8 +231,8 @@ model Produto {
 
 model Tipo {
   tp_id      Int        @id @default(autoincrement())
-  tp_nome    String?    @db.VarChar(150)
-  cat_id     Int?
+  tp_nome    String    @db.VarChar(150)
+  cat_id     Int
   produtos   Produto[]
   categorias Categoria? @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")
 

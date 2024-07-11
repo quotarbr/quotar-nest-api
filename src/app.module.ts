@@ -8,9 +8,10 @@ import { LojasModule } from './lojas/lojas.module';
 import { TiposModule } from './tipos/tipos.module';
 import { TiposPrecosModule } from './tipos_precos/tipos_precos.module';
 import { VariantesModule } from './variantes/variantes.module';
+import { CategoriasModule } from './categorias/categorias.module';
 
 @Module({
-  imports: [ProdutosModule, PrismaModule, OpcoesModule, VariantesModule, TiposPrecosModule, TiposModule, LojasModule],
+  imports: [ProdutosModule, PrismaModule, OpcoesModule, VariantesModule, TiposPrecosModule, TiposModule, LojasModule, CategoriasModule],
   controllers: [AppController],
   providers: [AppService],
 })

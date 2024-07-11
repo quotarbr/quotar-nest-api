@@ -1,11 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { CreateOpcaoDto } from './dto/create-opcao.dto';
 import { UpdateOpcoeDto } from './dto/update-opcoe.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { OpcaoDto } from './dto/opcao.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class OpcoesService {
-  create(createOpcoeDto: CreateOpcaoDto) {
-    return 'This action adds a new opcoe';
+  constructor(private prismaService: PrismaService){}
+
+  async create(opcaoDto: OpcaoDto[], prodt_id: number) {
+    const data: Prisma.OpcaoUncheckedCreateInput[] = opcaoDto.map( opcao => ({
+      opc_nome: opcao.opc_nome,
+      opc_valores: JSON.stringify(opcao.opc_valores),
+      prodt_id: prodt_id
+    }))
+    return await this.prismaService.opcao.createMany({data})
   }
 
   findAll() {
@@ -23,4 +32,5 @@ export class OpcoesService {
   remove(id: number) {
     return `This action removes a #${id} opcoe`;
   }
+
 }

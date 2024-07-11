@@ -8,8 +8,8 @@ import { FotoDto } from "./foto.dto";
 
 export class CreateProdutoDto {
   prodt_fotos?:      FotoDto[];
-  prodt_nome?:       string;       
+  prodt_nome:       string;       
   prodt_descricao?:  string; 
-  prodt_tipo?:       TipoDto; 
-  prodt_status?:     PRODT_STATUS; 
+  prodt_tipo:       TipoDto; 
+  prodt_status:     PRODT_STATUS; 
 }
