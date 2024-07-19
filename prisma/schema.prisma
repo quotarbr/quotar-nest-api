@@ -9,10 +9,10 @@ datasource db {
 }
 
 model Bairro {
-  bai_id     Int         @id @default(autoincrement())
-  bai_nome   String?     @db.VarChar(50)
-  cid_id     Int?
-  cidades    Cidade?     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, map: "cid_id")
+  bai_id     Int        @id @default(autoincrement())
+  bai_nome   String     @db.VarChar(50)
+  cid_id     Int
+  cidades    Cidade     @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, map: "cid_id")
   lojas      Loja[]
   lojistas   Lojista[]
   usuarios   Usuario[]
@@ -32,8 +32,8 @@ model Categoria {
 
 model Cidade {
   cid_id     Int         @id @default(autoincrement())
-  cid_nome   String?     @db.VarChar(50)
-  est_id     Int?
+  cid_nome   String     @db.VarChar(50)
+  est_id     Int
   bairros    Bairro[]
   estados    Estado?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, map: "est_id")
   lojas      Loja[]
@@ -47,7 +47,7 @@ model Cidade {
 
 model Estado {
   est_id     Int         @id @default(autoincrement())
-  est_nome   String?     @db.VarChar(50)
+  est_nome   String     @db.VarChar(50)
   cidades    Cidade[]
   lojas      Loja[]
   lojistas   Lojista[]
@@ -234,7 +234,7 @@ model Tipo {
   tp_nome    String    @db.VarChar(150)
   cat_id     Int
   produtos   Produto[]
-  categorias Categoria? @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")
+  categorias Categoria @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")
 
   @@index([cat_id], map: "cat_id")
   @@map("tipos")

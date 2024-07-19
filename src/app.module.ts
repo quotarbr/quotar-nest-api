@@ -9,9 +9,12 @@ import { TiposModule } from './tipos/tipos.module';
 import { TiposPrecosModule } from './tipos_precos/tipos_precos.module';
 import { VariantesModule } from './variantes/variantes.module';
 import { CategoriasModule } from './categorias/categorias.module';
+import { EstadosModule } from './estados/estados.module';
+import { CidadesModule } from './cidades/cidades.module';
+import { BairrosModule } from './bairros/bairros.module';
 
 @Module({
-  imports: [ProdutosModule, PrismaModule, OpcoesModule, VariantesModule, TiposPrecosModule, TiposModule, LojasModule, CategoriasModule],
+  imports: [ProdutosModule, PrismaModule, OpcoesModule, VariantesModule, TiposPrecosModule, TiposModule, LojasModule, CategoriasModule, EstadosModule, CidadesModule, BairrosModule],
   controllers: [AppController],
   providers: [AppService],
 })

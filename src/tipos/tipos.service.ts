@@ -1,11 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { TipoDto } from './dto/tipo.dto';
 import { UpdateTipoDto } from './dto/update-tipo.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class TiposService {
-  create(createTipoDto: TipoDto) {
-    return 'This action adds a new tipo';
+  constructor(private prismaService: PrismaService){}
+
+  async create(tipoDto: TipoDto) {
+    const data: Prisma.TipoUncheckedCreateInput = {
+      tp_nome: tipoDto.tp_nome,
+      cat_id: tipoDto.cat_id
+    }
+
+    return await this.prismaService.tipo.create({data})
   }
 
   findAll() {

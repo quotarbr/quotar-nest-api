@@ -7,6 +7,7 @@ import { FotoDto } from './dto/foto.dto';
 import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { OpcaoDto } from 'src/opcoes/dto/opcao.dto';
 import { CategoriasService } from 'src/categorias/categorias.service';
+import { TiposService } from 'src/tipos/tipos.service';
 
 @Injectable()
 export class ProdutosService {
@@ -14,6 +15,7 @@ export class ProdutosService {
   constructor(
     private prismaService: PrismaService,
     private categoriasService: CategoriasService,
+    private tipoService: TiposService,
     private opcoesService: OpcoesService
   ){}
 
@@ -21,10 +23,18 @@ export class ProdutosService {
     //categoria
     const categoria = this.categoriasService.create(reqProdutoDto.prodt_categoria);
     //tipo
+    const tipo = this.tipoService.create(reqProdutoDto.prodt_tipo);
+    //estado
+    //cidade
+    //bairro
+
+    //opcoes
+    
+    //tipos_preco
+    
+    
     
     //produto
-
-
     const data: Prisma.ProdutoUncheckedCreateInput = {
       prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
       prodt_nome: reqProdutoDto.prodt_nome,
@@ -57,6 +67,7 @@ export class ProdutosService {
   }
 
   async uploadFotos(prodt_fotos : FotoDto[]){
+    //tratar de base64 para string ?? o que vai ser e como
     const fotosTratadas = []
     return JSON.stringify(fotosTratadas)  
   } 
