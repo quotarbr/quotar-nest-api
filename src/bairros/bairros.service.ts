@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, Injectable } from '@nestjs/common';
 import { CreateBairroDto } from './dto/create-bairro.dto';
 import { UpdateBairroDto } from './dto/update-bairro.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -25,14 +25,22 @@ export class BairrosService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} bairro`;
+    return this.prismaService.bairro.findUnique({
+      where: {bai_id: id}
+    });
   }
 
   update(id: number, updateBairroDto: UpdateBairroDto) {
-    return `This action updates a #${id} bairro`;
+    return this.prismaService.bairro.update({
+      data: updateBairroDto,
+      where: {bai_id: id}
+    });
   }
 
+  @HttpCode(204)
   remove(id: number) {
-    return `This action removes a #${id} bairro`;
+    return this.prismaService.bairro.delete({
+      where: {bai_id: id}
+    });
   }
 }

@@ -11,7 +11,7 @@ export class CategoriasService {
 
   async create(categoriaDto: CategoriaDto) {
     const data: Prisma.CategoriaUncheckedCreateInput = {
-      nome: categoriaDto.cat_nome
+      cat_nome: categoriaDto.cat_nome
     }
     return await this.prismaService.categoria.create({data});
     

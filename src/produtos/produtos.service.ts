@@ -35,14 +35,14 @@ export class ProdutosService {
     
     
     //produto
-    const data: Prisma.ProdutoUncheckedCreateInput = {
-      prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
-      prodt_nome: reqProdutoDto.prodt_nome,
-      prodt_descricao: reqProdutoDto.prodt_descricao,
-      // loj_id: , // A api que vai autenticar 
-      tp_id: reqProdutoDto.prodt_tipo.tp_ip,
-    };
-    await this.prismaService.produto.create({ data });
+    // const data: Prisma.ProdutoUncheckedCreateInput = {
+    //   prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
+    //   prodt_nome: reqProdutoDto.prodt_nome,
+    //   prodt_descricao: reqProdutoDto.prodt_descricao,
+    //   // loj_id: , // A api que vai autenticar 
+    //   tp_id: reqProdutoDto.prodt_tipo.tp_ip,
+    // };
+    // await this.prismaService.produto.create({ data });
     
 
     // this.opcoesService.create(reqProdutoDto.prodt_opcoes, produto.prodt_id );

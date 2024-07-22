@@ -25,14 +25,21 @@ export class CidadesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} cidade`;
+    return this.prismaService.cidade.findUnique({
+      where: {cid_id: id}
+    })
   }
 
   update(id: number, updateCidadeDto: UpdateCidadeDto) {
-    return `This action updates a #${id} cidade`;
+    return this.prismaService.cidade.update({
+      data: updateCidadeDto,
+      where: {cid_id : id}
+    })
   }
 
   remove(id: number) {
-    return `This action removes a #${id} cidade`;
+    return this.prismaService.cidade.delete({
+      where: {cid_id: id}
+    })
   }
 }

@@ -23,19 +23,19 @@ model Bairro {
 }
 
 model Categoria {
-  cat_id Int     @id @default(autoincrement())
-  nome   String @db.VarChar(150)
+  cat_id     Int      @id @default(autoincrement())
+  cat_nome   String   @db.VarChar(150)
   tipos  Tipo[]
 
   @@map("categorias")
 }
 
 model Cidade {
-  cid_id     Int         @id @default(autoincrement())
+  cid_id     Int        @id @default(autoincrement())
   cid_nome   String     @db.VarChar(50)
   est_id     Int
   bairros    Bairro[]
-  estados    Estado?     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, map: "est_id")
+  estados    Estado     @relation(fields: [est_id], references: [est_id], onDelete: Restrict, map: "est_id")
   lojas      Loja[]
   lojistas   Lojista[]
   usuarios   Usuario[]
@@ -77,25 +77,25 @@ model Fatura {
 }
 
 model Loja {
-  loj_id              Int                  @id @default(autoincrement())
-  loj_nome            String?              @db.VarChar(100)
-  loj_cnpj            String?              @db.VarChar(14)
-  loj_logo            String?              @db.VarChar(255)
-  loj_slogan          String?              @db.VarChar(255)
-  loj_telefone        String?              @db.VarChar(20)
-  loj_email           String?              @db.VarChar(150)
-  loj_text_sobre      String?              @db.VarChar(255)
-  loj_cep             String?              @db.VarChar(10)
-  loj_endereco        String?              @db.VarChar(150)
-  loj_data_cadastro   DateTime?            @default(now()) @db.DateTime(0)
-  cid_id              Int?
-  bai_id              Int?
-  est_id              Int?
-  lojst_id            Int?
-  lojistas            Lojista?             @relation(fields: [lojst_id], references: [lojst_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_loj_lojst_id")
-  cidades             Cidade?              @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_1")
-  bairros             Bairro?              @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_2")
-  estados             Estado?              @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_3")
+  loj_id              Int                 @id @default(autoincrement())
+  loj_nome            String              @db.VarChar(100)
+  loj_cnpj            String              @db.VarChar(14)
+  loj_logo            String?             @db.VarChar(255)
+  loj_slogan          String?             @db.VarChar(255)
+  loj_telefone        String              @db.VarChar(20)
+  loj_email           String              @db.VarChar(150)
+  loj_text_sobre      String?             @db.VarChar(255)
+  loj_cep             String              @db.VarChar(10)
+  loj_endereco        String              @db.VarChar(150)
+  loj_data_cadastro   DateTime            @default(now()) @db.DateTime(0)
+  cid_id              Int
+  bai_id              Int
+  est_id              Int
+  lojst_id            Int
+  lojistas            Lojista             @relation(fields: [lojst_id], references: [lojst_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_loj_lojst_id")
+  cidades             Cidade              @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_1")
+  bairros             Bairro              @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_2")
+  estados             Estado              @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojas_ibfk_3")
   orcamento_variantes Orcamento_variante[]
   produtos            Produto[]
 
@@ -107,29 +107,29 @@ model Loja {
 }
 
 model Lojista {
-  lojst_id                Int                      @id @default(autoincrement())
-  lojst_nome              String?                  @db.VarChar(100)
-  lojst_cpf               String?                  @db.VarChar(11)
-  lojst_img_perfil        String?                  @db.VarChar(255)
-  lojst_telefone          String?                  @db.VarChar(20)
-  lojst_email             String?                  @db.VarChar(150)
-  lojst_data_cadastro     DateTime?                @default(now()) @db.DateTime(0)
-  lojst_cep               String?                  @db.VarChar(10)
-  lojst_endereco          String?                  @db.VarChar(150)
-  lojst_status            LOJST_STATUS?
-  lojst_loguin            String?                  @db.VarChar(50)
-  lojst_senha_hash        String?                  @db.VarChar(255)
-  lojst_token_inspiracao  String?                  @db.VarChar(255)
-  lojst_token_recuperacao String?                  @db.VarChar(255)
-  cid_id                  Int?
-  bai_id                  Int?
-  est_id                  Int?
+  lojst_id                Int                     @id @default(autoincrement())
+  lojst_nome              String                  @db.VarChar(100)
+  lojst_cpf               String                  @db.VarChar(11)
+  lojst_img_perfil        String?                 @db.VarChar(255)
+  lojst_telefone          String                  @db.VarChar(20)
+  lojst_email             String                  @db.VarChar(150)
+  lojst_data_cadastro     DateTime                @default(now()) @db.DateTime(0)
+  lojst_cep               String?                 @db.VarChar(10)
+  lojst_endereco          String?                 @db.VarChar(150)
+  lojst_status            LOJST_STATUS
+  lojst_loguin            String                  @db.VarChar(50)
+  lojst_senha_hash        String                  @db.VarChar(255)
+  lojst_token_inspiracao  String                  @db.VarChar(255)
+  lojst_token_recuperacao String                  @db.VarChar(255)
+  cid_id                  Int
+  bai_id                  Int
+  est_id                  Int
   lojst_loja_parceira     String?                  @db.LongText
   faturas                 Fatura[]
   lojas                   Loja[]
-  cidades                 Cidade?                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_1")
-  bairros                 Bairro?                  @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_2")
-  estados                 Estado?                  @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_3")
+  cidades                 Cidade                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_1")
+  bairros                 Bairro                  @relation(fields: [bai_id], references: [bai_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_2")
+  estados                 Estado                  @relation(fields: [est_id], references: [est_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_3")
   permissoes_notificacoes Permissoes_notificacao[]
 
   @@index([bai_id], map: "bai_id")
@@ -231,7 +231,7 @@ model Produto {
 
 model Tipo {
   tp_id      Int        @id @default(autoincrement())
-  tp_nome    String    @db.VarChar(150)
+  tp_nome    String     @db.VarChar(150)
   cat_id     Int
   produtos   Produto[]
   categorias Categoria @relation(fields: [cat_id], references: [cat_id], onDelete: Restrict, onUpdate: Restrict, map: "cat_id")

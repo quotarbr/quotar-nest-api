@@ -23,14 +23,21 @@ export class EstadosService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} estado`;
+    return this.prismaService.estado.findUnique({
+      where: {est_id: id}
+    })
   }
 
   update(id: number, updateEstadoDto: UpdateEstadoDto) {
-    return `This action updates a #${id} estado`;
+    return this.prismaService.estado.update({
+      data: updateEstadoDto,
+      where: {est_id: id}
+    })
   }
 
   remove(id: number) {
-    return `This action removes a #${id} estado`;
+    return this.prismaService.estado.delete({
+      where: { est_id: id }
+    })
   }
 }
