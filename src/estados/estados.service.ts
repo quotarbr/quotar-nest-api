@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpCode, Injectable } from '@nestjs/common';
 import { CreateEstadoDto } from './dto/create-estado.dto';
 import { UpdateEstadoDto } from './dto/update-estado.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -34,7 +34,7 @@ export class EstadosService {
       where: {est_id: id}
     })
   }
-
+  @HttpCode(204)
   remove(id: number) {
     return this.prismaService.estado.delete({
       where: { est_id: id }

@@ -124,7 +124,7 @@ model Lojista {
   cid_id                  Int
   bai_id                  Int
   est_id                  Int
-  lojst_loja_parceira     String?                  @db.LongText
+  lojst_loja_parceira     String?                 @db.LongText
   faturas                 Fatura[]
   lojas                   Loja[]
   cidades                 Cidade                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, onUpdate: Restrict, map: "lojistas_ibfk_1")
@@ -212,7 +212,7 @@ model Planos {
 model Produto {
   prodt_id         Int           @id @default(autoincrement())
   prodt_fotos      String?       @db.LongText
-  prodt_nome       String       @db.VarChar(100)
+  prodt_nome       String        @db.VarChar(100)
   prodt_descricao  String?       @db.VarChar(255)
   prodt_created_at DateTime      @default(now())
   prodt_updated_at DateTime      @updatedAt
