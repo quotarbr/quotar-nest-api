@@ -1,6 +1,7 @@
+import { Exclude } from "class-transformer";
 import { LOJST_STATUS } from "../enums/lojst-status.enum";
 
-export class CreateLojistaDto {
+export class ListLojistaDto {
     lojst_nome:                 string;
     lojst_cpf:                  string;
     lojst_img_perfil?:          string;
@@ -10,6 +11,14 @@ export class CreateLojistaDto {
     lojst_cep?:                 string;
     lojst_endereco?:            string;
     lojst_status:               LOJST_STATUS;
+    @Exclude()
+    lojst_loguin:               string;
+    @Exclude()
+    lojst_senha_hash:           string;
+    @Exclude()
+    lojst_token_inspiracao:     string;
+    @Exclude()
+    lojst_token_recuperacao:    string;
     cid_id:                     number;
     bai_id:                     number;
     est_id:                     number;
