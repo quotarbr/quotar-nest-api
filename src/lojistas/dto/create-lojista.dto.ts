@@ -11,12 +11,13 @@ export class CreateLojistaDto {
     lojst_cep?:                 string;
     lojst_endereco?:            string;
     lojst_status:               LOJST_STATUS;
-
     @Exclude()
     lojst_loguin:               string;
-
+    @Exclude()
     lojst_senha_hash:           string;
+    @Exclude()
     lojst_token_inspiracao:     string;
+    @Exclude()
     lojst_token_recuperacao:    string;
     cid_id:                     number;
     bai_id:                     number;

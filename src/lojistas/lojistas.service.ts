@@ -4,6 +4,7 @@ import { CreateLojistaDto } from './dto/create-lojista.dto';
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LOJST_STATUS, Prisma } from '@prisma/client';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class LojistasService {
@@ -26,9 +27,8 @@ export class LojistasService {
     }
 
     const data = {
-      ...createLojistaDto,
-      lojst_status: LOJST_STATUS.pendente
-    } 
+      ...createLojistaDto
+    };
 
     await this.prismaService.lojista.create({data});
     
@@ -39,7 +39,8 @@ export class LojistasService {
   }
 
   async findAll() {
-    return await this.prismaService.lojista.findMany();
+    const lojistas = await this.prismaService.lojista.findMany();
+    return lojistas.map(lojista => plainToClass(CreateLojistaDto, lojista));
   }
 
   async findOne(id: number) {
@@ -54,7 +55,7 @@ export class LojistasService {
     }
 
     return {
-      ...data,
+      ...plainToClass(CreateLojistaDto, data),
       statusCode: HttpStatus.OK
     }
   }
