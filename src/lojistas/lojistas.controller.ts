@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { LojistasService } from './lojistas.service';
 import { CreateLojistaDto } from './dto/create-lojista.dto';
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
@@ -14,7 +14,11 @@ export class LojistasController {
 
   @Get()
   findAll() {
-    return this.lojistasService.findAll();
+    try {
+      return this.lojistasService.findAll();
+    }catch (error) {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
   }
 
   @Get(':id')
