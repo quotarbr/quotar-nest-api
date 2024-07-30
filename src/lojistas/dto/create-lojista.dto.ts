@@ -1,49 +1,57 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 import { LOJST_STATUS } from "../enums/lojst-status.enum";
 import { Exclude } from 'class-transformer';
 
 export class CreateLojistaDto {
-    @IsNotEmpty()
-    lojst_nome:                 string;
 
     @IsNotEmpty()
-    lojst_cpf:                  string;
-
-    lojst_img_perfil?:          string;
+    lojst_nome: string;
 
     @IsNotEmpty()
-    lojst_telefone:             string;
+    lojst_cpf: string;
+
+    @IsOptional()
+    lojst_img_perfil?: string;
 
     @IsNotEmpty()
-    lojst_email:                string;
+    lojst_telefone: string;
 
     @IsNotEmpty()
-    lojst_data_cadastro:        Date;
+    lojst_email: string;
 
-    lojst_cep?:                 string;
-    lojst_endereco?:            string;
+    @IsOptional()
+    lojst_data_cadastro: Date;
 
-    @IsNotEmpty()
-    lojst_status:               LOJST_STATUS;
+    @IsOptional()
+    lojst_cep?: string;
 
-    @IsNotEmpty()
-    lojst_loguin:               string;
+    @IsOptional()
+    lojst_endereco?: string;
 
-    @IsNotEmpty()
-    lojst_senha_hash:           string;
-
-    lojst_token_inspiracao?:     string;
-
-    lojst_token_recuperacao?:    string;
+    @IsOptional()
+    lojst_status: LOJST_STATUS;
 
     @IsNotEmpty()
-    cid_id:                     number;
+    lojst_loguin: string;
 
     @IsNotEmpty()
-    bai_id:                     number;
+    lojst_senha_hash: string;
+
+    @IsOptional()
+    lojst_token_inspiracao?: string;
+
+    @IsOptional()
+    lojst_token_recuperacao?: string;
+
+    @IsNotEmpty()
+    cid_id: number;
+
+    @IsNotEmpty()
+    bai_id: number;
     
     @IsNotEmpty()
-    est_id:                     number;
+    est_id: number;
 
-    lojst_loja_parceira?:       string;
+    @IsOptional()
+    lojst_loja_parceira?: string;
 }

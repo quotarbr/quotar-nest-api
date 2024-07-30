@@ -31,9 +31,10 @@ export class LojistasService {
       ...createLojistaDto
     };
 
-    await this.prismaService.lojista.create({data});
+    const lojista = await this.prismaService.lojista.create({data});
     
     return {
+      id: lojista.lojst_id,
       message: "Lojista cadastrado com sucesso",
       statusCode: HttpStatus.CREATED
     }
