@@ -24,6 +24,7 @@ export class CreateLojistaDto {
     lojst_email: string;
 
     @IsOptional()
+    @IsDate()
     lojst_data_cadastro: Date;
 
     @IsString()

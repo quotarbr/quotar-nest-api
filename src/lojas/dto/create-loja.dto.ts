@@ -1,17 +1,61 @@
+import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
+
 export class CreateLojaDto {
-  loj_id:              number                  
-  loj_nome:            string             
-  loj_cnpj:            string         
-  loj_logo?:           string        
-  loj_slogan?:         string              
-  loj_telefone:        string              
-  loj_email:           string            
-  loj_text_sobre?:     string            
-  loj_cep:             string             
-  loj_endereco:        string              
-  loj_data_cadastro:   Date            
+           
+  @IsString()
+  @IsNotEmpty()
+  loj_nome:            string
+
+  @IsString()
+  @IsNotEmpty()
+  loj_cnpj:            string
+
+  @IsString()
+  @IsOptional()
+  loj_logo?:           string
+
+  @IsString()
+  @IsOptional()
+  loj_slogan?:         string
+
+  @IsString()
+  @IsNotEmpty()
+  loj_telefone:        string
+
+  @IsString()
+  @IsNotEmpty()
+  loj_email:           string
+
+  @IsString()
+  @IsOptional()
+  loj_text_sobre?:     string
+
+  @IsString()
+  @IsNotEmpty()
+  loj_cep:             string
+
+  @IsString()
+  @IsNotEmpty()
+  loj_endereco:        string
+       
+  @IsDate()
+  @IsNotEmpty()
+  loj_data_cadastro:   Date           
+   
+  @IsNumber()
+  @IsNotEmpty()
   cid_id:              number
+
+  @IsNumber()
+  @IsNotEmpty()
   bai_id:              number
+
+  @IsNumber()
+  @IsNotEmpty()
   est_id:              number
+
+  @IsNumber()
+  @IsNotEmpty()
   lojst_id:            number
+
 }

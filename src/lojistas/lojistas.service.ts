@@ -16,15 +16,15 @@ export class LojistasService {
 
 
   async create(createLojistaDto: CreateLojistaDto) {
-    const hasUser = await this.prismaService.lojista.findFirst({
+    const hasLojista = await this.prismaService.lojista.findFirst({
       where: {
         lojst_email: createLojistaDto.lojst_email,
         lojst_telefone: createLojistaDto.lojst_telefone
       }
     })
 
-    if(hasUser) {
-      throw new BadRequestException("Usuário já cadastrado.");
+    if(hasLojista) {
+      throw new BadRequestException("Usuário já cadastrado");
     }
 
     const data = {
