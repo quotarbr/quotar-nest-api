@@ -39,7 +39,7 @@ export class CreateLojaDto {
   loj_endereco:        string
        
   @IsDate()
-  @IsNotEmpty()
+  @IsOptional()
   loj_data_cadastro:   Date           
    
   @IsNumber()
