@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 import { CategoriaDto } from './dto/categoria.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,26 +10,72 @@ export class CategoriasService {
   constructor(private prismaService: PrismaService){}
 
   async create(categoriaDto: CategoriaDto) {
-    const data: Prisma.CategoriaUncheckedCreateInput = {
-      cat_nome: categoriaDto.cat_nome
+    const hasCategoria = await this.prismaService.categoria.findFirst({
+      where: {
+        cat_nome: categoriaDto.cat_nome
+      }
+    })
+
+    if(hasCategoria){
+      throw new BadRequestException("Categoria já cadastrada.")
     }
-    return await this.prismaService.categoria.create({data});
+
+    const data = {
+      ...categoriaDto
+    }
+
+    const categoria = await this.prismaService.categoria.create({data});
+    return {
+      id: categoria.cat_id,
+      message: "Categoria cadastrada com sucesso.",
+      statusCode: HttpStatus.CREATED
+    }
     
   }
 
-  findAll() {
-    return `This action returns all categorias`;
+  async findAll() {
+    const data = await this.prismaService.categoria.findMany({
+      orderBy:{
+        cat_nome: 'asc'
+      }
+      
+    });
+    return { data }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} categoria`;
+  async findOne(id: number) {
+    const categoria = await this.prismaService.categoria.findUnique({
+      where: {
+        cat_id: id
+      }
+    })
+
+    if(!categoria) throw new BadRequestException("Categoria não encontrada.")
+
+    return {
+      categoria,
+      statusCode: HttpStatus.OK
+    }
   }
 
-  update(id: number, updateCategoriaDto: UpdateCategoriaDto) {
-    return `This action updates a #${id} categoria`;
+  async update(id: number, updateCategoriaDto: UpdateCategoriaDto) {
+    return await this.prismaService.categoria.update({
+      data: updateCategoriaDto,
+      where: {
+        cat_id: id
+      }
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} categoria`;
+  async remove(id: number) {
+    const data = await this.prismaService.categoria.delete({
+      where: {
+        cat_id: id
+      }
+    })
+    return {
+      message: "Categoria deletada com sucesso",
+      statusCode: HttpStatus.NO_CONTENT
+    }
   }
 }
