@@ -1,5 +1,11 @@
+import { IsNotEmpty, IsNumber, IsString } from "class-validator"
+
 export class TipoDto {
-    tp_ip?: number;
+    @IsString()
+    @IsNotEmpty()
     tp_nome: string;
+    
+    @IsNumber()
+    @IsNotEmpty()
     cat_id: number;
 }

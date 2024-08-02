@@ -1,10 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateVarianteDto } from './dto/create-variante.dto';
 import { UpdateVarianteDto } from './dto/update-variante.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class VariantesService {
+  constructor(
+    private prismaService: PrismaService
+  ){}
+
   create(createVarianteDto: CreateVarianteDto) {
+    // const hasVariante = this.prismaService.variante.findFirst({
+    //   where: {
+        
+    //   }
+    // })
+
+    // if(hasVariante) throw new BadRequestException("Variante já cadastrada")
+    
     return 'This action adds a new variante';
   }
 

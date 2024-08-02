@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { TipoDto } from './dto/tipo.dto';
 import { UpdateTipoDto } from './dto/update-tipo.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -9,27 +9,55 @@ export class TiposService {
   constructor(private prismaService: PrismaService){}
 
   async create(tipoDto: TipoDto) {
-    const data: Prisma.TipoUncheckedCreateInput = {
-      tp_nome: tipoDto.tp_nome,
-      cat_id: tipoDto.cat_id
+    const hasTipo = await this.prismaService.tipo.findFirst({
+      where: {
+        tp_nome: tipoDto.tp_nome
+      }
+    })
+
+    if(hasTipo) throw new BadRequestException("Tipo já cadastrado.")
+
+
+
+    const data = {
+      ...tipoDto
     }
 
-    return await this.prismaService.tipo.create({data})
+    const tipo = await this.prismaService.tipo.create({data})
+
+    return {
+      id: tipo.tp_id,
+      message: "Tipo cadastrado com sucesso.",
+      statusCode: HttpStatus.CREATED
+    }
   }
 
-  findAll() {
-    return `This action returns all tipos`;
+  async findAll() {
+    return await this.prismaService.tipo.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tipo`;
+  async findOne(id: number) {
+    return await this.prismaService.tipo.findUnique({
+      where: {
+        tp_id: id
+      }
+    });
   }
 
-  update(id: number, updateTipoDto: UpdateTipoDto) {
-    return `This action updates a #${id} tipo`;
+  async update(id: number, updateTipoDto: UpdateTipoDto) {
+    return this.prismaService.tipo.update({
+      data: updateTipoDto,
+      where: {
+        tp_id: id
+      }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tipo`;
+  async remove(id: number) {
+    return await this.prismaService.tipo.delete({
+      where:{
+        tp_id: id
+      }
+    })
   }
 }

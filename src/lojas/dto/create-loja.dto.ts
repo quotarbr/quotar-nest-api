@@ -4,58 +4,58 @@ export class CreateLojaDto {
            
   @IsString()
   @IsNotEmpty()
-  loj_nome:            string
+  loj_nome: string
 
   @IsString()
   @IsNotEmpty()
-  loj_cnpj:            string
+  loj_cnpj: string
 
   @IsString()
   @IsOptional()
-  loj_logo?:           string
+  loj_logo?: string
 
   @IsString()
   @IsOptional()
-  loj_slogan?:         string
+  loj_slogan?: string
 
   @IsString()
   @IsNotEmpty()
-  loj_telefone:        string
+  loj_telefone: string
 
   @IsString()
   @IsNotEmpty()
-  loj_email:           string
+  loj_email: string
 
   @IsString()
   @IsOptional()
-  loj_text_sobre?:     string
+  loj_text_sobre?: string
 
   @IsString()
   @IsNotEmpty()
-  loj_cep:             string
+  loj_cep: string
 
   @IsString()
   @IsNotEmpty()
-  loj_endereco:        string
+  loj_endereco: string
        
   @IsDate()
   @IsOptional()
-  loj_data_cadastro:   Date           
+  loj_data_cadastro: Date           
    
   @IsNumber()
   @IsNotEmpty()
-  cid_id:              number
+  cid_id: number
 
   @IsNumber()
   @IsNotEmpty()
-  bai_id:              number
+  bai_id: number
 
   @IsNumber()
   @IsNotEmpty()
-  est_id:              number
+  est_id: number
 
   @IsNumber()
   @IsNotEmpty()
-  lojst_id:            number
+  lojst_id: number
 
 }

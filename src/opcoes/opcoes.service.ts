@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateOpcoeDto } from './dto/update-opcoe.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OpcaoDto } from './dto/opcao.dto';
@@ -9,12 +9,21 @@ export class OpcoesService {
   constructor(private prismaService: PrismaService){}
 
   async create(opcaoDto: OpcaoDto[], prodt_id: number) {
-    const data: Prisma.OpcaoUncheckedCreateInput[] = opcaoDto.map( opcao => ({
+    const data: OpcaoDto[] = opcaoDto.map( opcao => ({
       opc_nome: opcao.opc_nome,
       opc_valores: JSON.stringify(opcao.opc_valores),
       prodt_id: prodt_id
     }))
-    return await this.prismaService.opcao.createMany({data})
+
+    const opcao = await this.prismaService.opcao.createMany({ data })
+    
+    return {
+      opcao,
+      message: "Opções criadas com sucesso.",
+      statusCode: HttpStatus.CREATED,
+    }
+    
+      
   }
 
   findAll() {
