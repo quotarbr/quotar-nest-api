@@ -1,18 +1,29 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { UpdateOpcoeDto } from './dto/update-opcoe.dto';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { UpdateOpcaoDto } from './dto/update-opcao.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { OpcaoDto } from './dto/opcao.dto';
-import { Prisma } from '@prisma/client';
+import { CreateOpcaoDto } from './dto/create-opcao.dto';
 
 @Injectable()
 export class OpcoesService {
+
   constructor(private prismaService: PrismaService){}
 
-  async create(opcaoDto: OpcaoDto[], prodt_id: number) {
-    const data: OpcaoDto[] = opcaoDto.map( opcao => ({
+  async create(opcaoDto: CreateOpcaoDto[]) {
+    const hasOpcao = opcaoDto.map( (opcao => {
+      this.prismaService.opcao.findFirst({
+        where: { 
+          prodt_id: opcao.prodt_id,
+          opc_nome: opcao.opc_nome,
+        }
+      })
+    }))
+
+    if(hasOpcao) throw new BadRequestException("Opção já cadastrada")
+
+    const data = opcaoDto.map( opcao => ({
       opc_nome: opcao.opc_nome,
       opc_valores: JSON.stringify(opcao.opc_valores),
-      prodt_id: prodt_id
+      prodt_id: opcao.prodt_id
     }))
 
     const opcao = await this.prismaService.opcao.createMany({ data })
@@ -26,20 +37,51 @@ export class OpcoesService {
       
   }
 
-  findAll() {
-    return `This action returns all opcoes`;
+  async findAll() {
+    return await this.prismaService.opcao.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} opcoe`;
+  async findOne(id: number) {
+    const opcao = await this.prismaService.opcao.findUnique({
+      where: { opc_id: id }
+    })
+
+    if(!opcao) throw new BadRequestException("Opção não encontrada")
+    return {
+      opcao,
+      statusCode: HttpStatus.OK
+    }
   }
 
-  update(id: number, updateOpcoeDto: UpdateOpcoeDto) {
-    return `This action updates a #${id} opcoe`;
+  async update(id: number, updateOpcoeDto: UpdateOpcaoDto) {
+    const data = await this.prismaService.opcao.findUnique({
+      where: { opc_id: id }
+    });
+    if(!data) throw new BadRequestException("Opção não encontrada.");
+
+    const opcao = await this.prismaService.opcao.update({
+      data: {
+        opc_nome: updateOpcoeDto.opc_nome,
+        opc_valores : JSON.stringify(updateOpcoeDto.opc_valores),
+      },
+      where: { opc_id: id}
+    })
+    return {
+      opcao,
+      statusCode: HttpStatus.OK
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} opcoe`;
+  async remove(id: number) {
+    const opcao = await this.prismaService.opcao.delete({
+      where: { opc_id: id}
+    }) 
+
+    if(!opcao) throw new BadRequestException("Opção não encontrada.")
+    return {
+      message: "Opção deletada com sucesso.",
+      statusCode: HttpStatus.NO_CONTENT
+    }
   }
 
 }

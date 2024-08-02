@@ -242,7 +242,7 @@ model Tipo {
 
 model Tipos_preco {
   tp_prec_id   Int        @id @default(autoincrement())
-  tp_prec_nome String?    @db.VarChar(100)
+  tp_prec_nome String     @db.VarChar(100)
   variantes    Variante[]
 
   @@map("tipos_precos")

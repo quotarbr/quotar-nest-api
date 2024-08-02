@@ -70,8 +70,12 @@ export class LojistasService {
   }
 
   async remove(id: number) {
-    return await this.prismaService.lojista.delete({
+    const lojista = await this.prismaService.lojista.delete({
       where: { lojst_id: id}
     }) 
+    return {
+      message: "Lojista deletado com sucesso.",
+      statusCode: HttpStatus.NO_CONTENT
+    }
   }
 }

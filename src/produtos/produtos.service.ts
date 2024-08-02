@@ -5,7 +5,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 import { FotoDto } from './dto/foto.dto';
 import { OpcoesService } from 'src/opcoes/opcoes.service';
-import { OpcaoDto } from 'src/opcoes/dto/opcao.dto';
 import { CategoriasService } from 'src/categorias/categorias.service';
 import { TiposService } from 'src/tipos/tipos.service';
 
