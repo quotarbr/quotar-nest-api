@@ -3,7 +3,7 @@ import { TiposPrecosService } from './tipos_precos.service';
 import { CreateTiposPrecoDto } from './dto/create-tipos_preco.dto';
 import { UpdateTiposPrecoDto } from './dto/update-tipos_preco.dto';
 
-@Controller('tipos-precos')
+@Controller('tipos_precos')
 export class TiposPrecosController {
   constructor(private readonly tiposPrecosService: TiposPrecosService) {}
 

@@ -7,9 +7,10 @@ import { CreateLojaDto } from "src/lojas/dto/create-loja.dto";
 import { FotoDto } from "./foto.dto";
 
 export class CreateProdutoDto {
-  prodt_fotos?:      FotoDto[];
+  prodt_fotos?:     FotoDto[];
   prodt_nome:       string;       
-  prodt_descricao?:  string; 
+  prodt_descricao?: string; 
+  prodt_loja:       CreateLojaDto;
   prodt_tipo:       TipoDto; 
   prodt_status:     PRODT_STATUS; 
 }

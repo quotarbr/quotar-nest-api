@@ -32,9 +32,7 @@ export class OpcoesService {
       opcao,
       message: "Opções criadas com sucesso.",
       statusCode: HttpStatus.CREATED,
-    }
-    
-      
+    }    
   }
 
   async findAll() {
@@ -42,11 +40,7 @@ export class OpcoesService {
   }
 
   async findOne(id: number) {
-    const opcao = await this.prismaService.opcao.findUnique({
-      where: { opc_id: id }
-    })
-
-    if(!opcao) throw new BadRequestException("Opção não encontrada")
+    const opcao = await this.ensureOpcaoExist(id);
     return {
       opcao,
       statusCode: HttpStatus.OK
@@ -54,10 +48,7 @@ export class OpcoesService {
   }
 
   async update(id: number, updateOpcoeDto: UpdateOpcaoDto) {
-    const data = await this.prismaService.opcao.findUnique({
-      where: { opc_id: id }
-    });
-    if(!data) throw new BadRequestException("Opção não encontrada.");
+    await this.ensureOpcaoExist(id);
 
     const opcao = await this.prismaService.opcao.update({
       data: {
@@ -73,15 +64,20 @@ export class OpcoesService {
   }
 
   async remove(id: number) {
-    const opcao = await this.prismaService.opcao.delete({
-      where: { opc_id: id}
-    }) 
-
-    if(!opcao) throw new BadRequestException("Opção não encontrada.")
+    const opcao = await this.ensureOpcaoExist(id);
     return {
+      id: opcao.opc_id,
       message: "Opção deletada com sucesso.",
       statusCode: HttpStatus.NO_CONTENT
     }
+  }
+
+  async ensureOpcaoExist(id: number){
+    const opcao = await this.prismaService.opcao.findUnique({
+      where: { opc_id: id }
+    })
+    if(!opcao) throw new BadRequestException("Opção não encontrada");
+    else return opcao;
   }
 
 }

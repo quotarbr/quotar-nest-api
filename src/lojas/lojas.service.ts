@@ -1,7 +1,8 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { STATUS_CODES } from 'http';
 
 @Injectable()
 export class LojasService {
@@ -23,7 +24,6 @@ export class LojasService {
       throw new BadRequestException("Loja já cadastrada")
     }
 
-
     const data = {
       ...createLojaDto
     }
@@ -42,13 +42,24 @@ export class LojasService {
   }
 
   async findOne(id: number) {
-
-    return await this.prismaService.loja.findUnique({
+    const loja = await this.prismaService.loja.findUnique({
       where: { loj_id: id }
     })
+    if(!loja) throw new BadRequestException("Loja não encontrada.")
+
+    return {
+      loja,
+      statusCode: HttpStatus.OK
+    } 
   }
 
   async update(id: number, updateLojaDto: UpdateLojaDto) {
+    const loja = await this.prismaService.loja.findUnique({
+      where: { loj_id: id }
+    })
+
+    if(!loja) throw new NotFoundException("Loja não encontrada.")
+
     return await this.prismaService.loja.update({
       data: updateLojaDto,
       where: { loj_id: id }
@@ -56,6 +67,12 @@ export class LojasService {
   }
 
   async remove(id: number) {
+    const loja = await this.prismaService.loja.findUnique({
+      where: { loj_id: id }
+    })
+
+    if(!loja) throw new NotFoundException("Loja não encontrada.")
+
     return await this.prismaService.loja.delete({
       where: { loj_id: id }
     })

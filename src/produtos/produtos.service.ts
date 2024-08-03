@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Response } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, Response } from '@nestjs/common';
 import { ReqProdutoDto } from './dto/req-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -7,6 +7,9 @@ import { FotoDto } from './dto/foto.dto';
 import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { CategoriasService } from 'src/categorias/categorias.service';
 import { TiposService } from 'src/tipos/tipos.service';
+import { LojasService } from 'src/lojas/lojas.service';
+import { TiposPrecosService } from 'src/tipos_precos/tipos_precos.service';
+import { VariantesService } from 'src/variantes/variantes.service';
 
 @Injectable()
 export class ProdutosService {
@@ -14,54 +17,53 @@ export class ProdutosService {
   constructor(
     private prismaService: PrismaService,
     private categoriasService: CategoriasService,
-    private tipoService: TiposService,
-    private opcoesService: OpcoesService
+    private tiposService: TiposService,
+    private lojasService: LojasService,
+    private opcoesService: OpcoesService,
+    private tiposPrecoService: TiposPrecosService,
+    private varianteService: VariantesService
   ){}
 
   async create(reqProdutoDto: ReqProdutoDto) {    
+    
     //categoria
-    const categoria = this.categoriasService.create(reqProdutoDto.prodt_categoria);
+
     //tipo
-    const tipo = this.tipoService.create(reqProdutoDto.prodt_tipo);
-    //estado
-    //cidade
-    //bairro
 
-    //opcoes
-    
-    //tipos_preco
-    
-    
-    
+    //loja
+      //
     //produto
-    // const data: Prisma.ProdutoUncheckedCreateInput = {
-    //   prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
-    //   prodt_nome: reqProdutoDto.prodt_nome,
-    //   prodt_descricao: reqProdutoDto.prodt_descricao,
-    //   // loj_id: , // A api que vai autenticar 
-    //   tp_id: reqProdutoDto.prodt_tipo.tp_ip,
-    // };
-    // await this.prismaService.produto.create({ data });
+    //opcao
+    //tipo_preco
+    //variante
+   
     
 
-    // this.opcoesService.create(reqProdutoDto.prodt_opcoes, produto.prodt_id );
     return 'Produto criado com sucesso'
   }
 
-  findAll() {
-    
-    return this.prismaService.produto.findMany();
+  async findAll() {
+    return await this.prismaService.produto.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} produto`;
+  async findOne(id: number) {
+    const produto = this.prismaService.produto.findUnique({
+      where: { prodt_id: id}
+    })
+
+    if(!produto) throw new BadRequestException("Produto não encontrado.");
+
+    return {
+      data: produto,
+      statusCode: HttpStatus.OK
+    }
   }
 
-  update(id: number, updateProdutoDto: UpdateProdutoDto) {
+  async update(id: number, updateProdutoDto: UpdateProdutoDto) {
     return `This action updates a #${id} produto`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} produto`;
   }
 

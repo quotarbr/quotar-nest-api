@@ -16,9 +16,7 @@ export class CategoriasService {
       }
     })
 
-    if(hasCategoria){
-      throw new BadRequestException("Categoria já cadastrada.")
-    }
+    if(hasCategoria){ throw new BadRequestException("Categoria já cadastrada.") }
 
     const data = {
       ...categoriaDto

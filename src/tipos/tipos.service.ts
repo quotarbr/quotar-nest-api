@@ -17,8 +17,6 @@ export class TiposService {
 
     if(hasTipo) throw new BadRequestException("Tipo já cadastrado.")
 
-
-
     const data = {
       ...tipoDto
     }

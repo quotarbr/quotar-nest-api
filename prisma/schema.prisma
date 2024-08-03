@@ -285,10 +285,10 @@ model Variante {
   vrnt_fotos          String               @db.LongText
   vrnt_preco          Decimal              @db.Decimal(10, 2)
   vrnt_opcoes         String               @db.LongText
-  prodt_id            Int?
+  prodt_id            Int
   tp_prec_id          Int
   orcamento_variantes Orcamento_variante[]
-  produtos            Produto?             @relation(fields: [prodt_id], references: [prodt_id], onDelete: Restrict, onUpdate: Restrict, map: "prodt_id")
+  produtos            Produto              @relation(fields: [prodt_id], references: [prodt_id], onDelete: Restrict, onUpdate: Restrict, map: "prodt_id")
   tipos_precos        Tipos_preco          @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
 
   @@index([prodt_id], map: "prodt_id")

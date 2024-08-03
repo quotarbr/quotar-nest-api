@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, NotFoundException, InternalServerErrorException, HttpStatus } from '@nestjs/common';
 import { LojasService } from './lojas.service';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
@@ -9,12 +9,20 @@ export class LojasController {
 
   @Post()
   create(@Body() createLojaDto: CreateLojaDto) {
-    return this.lojasService.create(createLojaDto);
+    try{
+      return this.lojasService.create(createLojaDto);
+    } catch(e) {
+      throw new  HttpException( e.message || "Ocorreu um erro ao cadastrar loja.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get()
   findAll() {
-    return this.lojasService.findAll();
+    try {
+      return this.lojasService.findAll();
+    } catch(e) {
+      throw new InternalServerErrorException( e.message || "Ocorreu um erro ao buscar lojas.");
+    }
   }
 
   @Get(':id')

@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTiposPrecoDto } from './dto/create-tipos_preco.dto';
 import { UpdateTiposPrecoDto } from './dto/update-tipos_preco.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -15,15 +15,11 @@ export class TiposPrecosService {
         tp_prec_nome: createTiposPrecoDto.tp_prec_nome
       }
     })
+    if(hasTipoPreco) throw new NotFoundException("Tipo preço já cadastrado.");
 
-    if(hasTipoPreco) throw new BadRequestException("Tipo preço já cadastrado.");
-
-
-    const data = {
-      ...createTiposPrecoDto
-    }
-    const tipoPreco = await this.prismaService.tipos_preco.create({ data })
-
+    const data = { ...createTiposPrecoDto };
+    const tipoPreco = await this.prismaService.tipos_preco.create({ data });
+    
     return {
       id: tipoPreco.tp_prec_id,
       message: "Tipo preço cadastrado com sucesso.",
@@ -36,11 +32,7 @@ export class TiposPrecosService {
   }
 
   async findOne(id: number) {
-    const tipoPreco = await this.prismaService.tipos_preco.findUnique({
-      where: { tp_prec_id: id }
-    })
-
-    if(!tipoPreco) throw new BadRequestException("Tipo preço não encontrado.")
+    const tipoPreco = await this.ensureTipoPrecoExists(id);
 
     return {
       tipoPreco,
@@ -49,22 +41,24 @@ export class TiposPrecosService {
   }
 
   async update(id: number, updateTiposPrecoDto: UpdateTiposPrecoDto) {
-    return await this.prismaService.tipos_preco.update({
-      data: updateTiposPrecoDto,
-      where: {
-        tp_prec_id: id
-      }
-    })
-  }
+    await this.ensureTipoPrecoExists(id);
 
-  async remove(id: number) {
-    const hasTipoPreco = await this.prismaService.tipos_preco.findFirst({
+    const tipoPreco =  await this.prismaService.tipos_preco.update({
+      data: updateTiposPrecoDto,
       where: { tp_prec_id: id }
     })
 
-    if(hasTipoPreco) throw new BadRequestException("Tipo preço já cadastrado.");
+    return {
+      tipoPreco,
+      message: "Tipo preço atualizado.",
+      statusCode: HttpStatus.OK
+    } 
+  }
+
+  async remove(id: number) {
+    const tipoPreco = await this.ensureTipoPrecoExists(id);
     
-    const tipoPreco = await this.prismaService.tipos_preco.delete({
+    await this.prismaService.tipos_preco.delete({
       where: { tp_prec_id: id }
     })
   
@@ -73,5 +67,15 @@ export class TiposPrecosService {
       message: "Tipo preço deletado com sucesso.",
       statusCode: HttpStatus.NO_CONTENT
     }
+  }
+
+
+  async ensureTipoPrecoExists(id: number) {
+    const tipoPreco = await this.prismaService.tipos_preco.findUnique({
+      where: { tp_prec_id: id }
+    })
+
+    if(!tipoPreco) throw new NotFoundException("Tipo preço não encontrado.")
+    else return tipoPreco;
   }
 }
