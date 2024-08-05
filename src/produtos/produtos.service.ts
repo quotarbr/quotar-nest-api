@@ -2,7 +2,7 @@ import { BadRequestException, HttpStatus, Injectable, Response } from '@nestjs/c
 import { ReqProdutoDto } from './dto/req-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { PRODT_STATUS, Prisma } from '@prisma/client';
 import { FotoDto } from './dto/foto.dto';
 import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { CategoriasService } from 'src/categorias/categorias.service';
@@ -25,19 +25,17 @@ export class ProdutosService {
   ){}
 
   async create(reqProdutoDto: ReqProdutoDto) {    
-    
-    //categoria
+    // const data: Prisma.ProdutoCreateInput = {
+    //   prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
+    //   prodt_nome: reqProdutoDto.prodt_nome,
+    //   prodt_descricao: reqProdutoDto.prodt_descricao,
+    //   tp_id : { connect: { tp_id: reqProdutoDto.prodt_tipo } }, // Conectar o tipo
+    //   loj_id : { connect: { loj_id: reqProdutoDto.prodt_loja } },
+    //   prodt_status: PRODT_STATUS.liberacao
+    // }
 
-    //tipo
+    // const produto = await this.prismaService.produto.create({ data })
 
-    //loja
-      //
-    //produto
-    //opcao
-    //tipo_preco
-    //variante
-   
-    
 
     return 'Produto criado com sucesso'
   }
@@ -70,6 +68,6 @@ export class ProdutosService {
   async uploadFotos(prodt_fotos : FotoDto[]){
     //tratar de base64 para string ?? o que vai ser e como
     const fotosTratadas = []
-    return JSON.stringify(fotosTratadas)  
+    return JSON.stringify(fotosTratadas);  
   } 
 }
