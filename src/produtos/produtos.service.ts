@@ -16,25 +16,31 @@ export class ProdutosService {
 
   constructor(
     private prismaService: PrismaService,
-    private categoriasService: CategoriasService,
-    private tiposService: TiposService,
-    private lojasService: LojasService,
     private opcoesService: OpcoesService,
-    private tiposPrecoService: TiposPrecosService,
     private varianteService: VariantesService
   ){}
 
   async create(reqProdutoDto: ReqProdutoDto) {    
-    // const data: Prisma.ProdutoCreateInput = {
-    //   prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
-    //   prodt_nome: reqProdutoDto.prodt_nome,
-    //   prodt_descricao: reqProdutoDto.prodt_descricao,
-    //   tp_id : { connect: { tp_id: reqProdutoDto.prodt_tipo } }, // Conectar o tipo
-    //   loj_id : { connect: { loj_id: reqProdutoDto.prodt_loja } },
-    //   prodt_status: PRODT_STATUS.liberacao
-    // }
+    const data = {
+      prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
+      prodt_nome: reqProdutoDto.prodt_nome,
+      prodt_descricao: reqProdutoDto.prodt_descricao,
+      loj_id: reqProdutoDto.prodt_loja,
+      tp_id: reqProdutoDto.prodt_tipo,
+      prodt_status: PRODT_STATUS.liberacao
+    }
 
-    // const produto = await this.prismaService.produto.create({ data })
+    const produto = await this.prismaService.produto.create({ data });
+
+    const opcao = reqProdutoDto.prodt_opcoes.map( op => ({
+      opc_nome: op.opc_nome,
+      opc_valores: JSON.stringify(op.opc_valores),
+      prodt_id: produto.prodt_id
+    }))
+
+    await this.opcoesService.create(opcao);
+
+    
 
 
     return 'Produto criado com sucesso'
