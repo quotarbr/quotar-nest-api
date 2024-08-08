@@ -64,7 +64,10 @@ export class OpcoesService {
   }
 
   async remove(id: number) {
-    const opcao = await this.ensureOpcaoExist(id);
+    await this.ensureOpcaoExist(id);
+    const opcao = await this.prismaService.opcao.delete({
+      where: {opc_id : id}
+    })
     return {
       id: opcao.opc_id,
       message: "Opção deletada com sucesso.",

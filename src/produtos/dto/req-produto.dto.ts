@@ -3,6 +3,7 @@ import { FotoDto } from "./foto.dto";
 import { TipoDto } from "src/tipos/dto/tipo.dto";
 import { CategoriaDto } from "src/categorias/dto/categoria.dto";
 import { CreateOpcaoDto } from "src/opcoes/dto/create-opcao.dto";
+import { CreateVarianteDto } from "src/variantes/dto/create-variante.dto";
 
 export class ReqProdutoDto {
   prodt_fotos?:     FotoDto[];
@@ -13,4 +14,5 @@ export class ReqProdutoDto {
   prodt_opcoes:     CreateOpcaoDto[];
   prodt_status?:    PRODT_STATUS; 
   prodt_loja:       number;
+  prodt_variants:   CreateVarianteDto;
 }

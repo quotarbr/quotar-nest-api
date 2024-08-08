@@ -22,6 +22,7 @@ export class ProdutosService {
 
   async create(reqProdutoDto: ReqProdutoDto) {    
     const data = {
+      ...reqProdutoDto,
       prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
       prodt_nome: reqProdutoDto.prodt_nome,
       prodt_descricao: reqProdutoDto.prodt_descricao,
@@ -32,13 +33,19 @@ export class ProdutosService {
 
     const produto = await this.prismaService.produto.create({ data });
 
-    const opcao = reqProdutoDto.prodt_opcoes.map( op => ({
+    const opcoes = reqProdutoDto.prodt_opcoes.map( op => ({
       opc_nome: op.opc_nome,
       opc_valores: JSON.stringify(op.opc_valores),
       prodt_id: produto.prodt_id
     }))
 
-    await this.opcoesService.create(opcao);
+    await this.opcoesService.create(opcoes);
+
+    const variante = {
+      ...reqProdutoDto.prodt_variants
+    }
+
+    // await this.varianteService.create({variante})
 
     
 
