@@ -8,7 +8,7 @@ export class VariantesController {
   constructor(private readonly variantesService: VariantesService) {}
 
   @Post()
-  create(@Body() createVarianteDto: CreateVarianteDto) {
+  create(@Body() createVarianteDto: CreateVarianteDto[]) {
     return this.variantesService.create(createVarianteDto);
   }
 

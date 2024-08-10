@@ -18,7 +18,7 @@ export class OpcoesService {
       })
     }))
 
-    if(hasOpcao) throw new BadRequestException("Opção já cadastrada")
+    if(hasOpcao) throw new BadRequestException("Opção já cadastrada.")
 
     const data = opcaoDto.map( opcao => ({
       opc_nome: opcao.opc_nome,

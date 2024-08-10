@@ -11,16 +11,17 @@ export class VariantesService {
     private prismaService: PrismaService
   ){}
 
-  async create(createVarianteDto: CreateVarianteDto) {
-    const data = {
-      vrnt_fotos:   JSON.stringify(createVarianteDto.vrnt_fotos),
-      vrnt_preco:   createVarianteDto.vrnt_preco,
-      vrnt_opcoes:  JSON.stringify(createVarianteDto.vrnt_opcoes),
-      prodt_id:     createVarianteDto.prodt_id,
-      tp_prec_id:   createVarianteDto.tp_prec_id
-    }
+  async create(createVarianteDto: CreateVarianteDto[]) {
 
-    const variante = await this.prismaService.variante.create({data})
+    const data =  createVarianteDto.map( variante => ({
+      vrnt_fotos: JSON.stringify(variante.vrnt_fotos),
+      vrnt_preco: variante.vrnt_preco,
+      vrnt_opcoes: JSON.stringify(variante.vrnt_opcoes),
+      prodt_id: variante.prodt_id,
+      tp_prec_id: variante.tp_prec_id
+    }))
+
+    const variante = await this.prismaService.variante.createMany({data})
     
     return {
       variante,
@@ -34,7 +35,7 @@ export class VariantesService {
   }
 
   async findOne(id: number) {
-    const variante = this.ensureVarianteExist(id);
+    const variante = await this.ensureVarianteExist(id);
     return {
       variante,
       statusCode: HttpStatus.OK

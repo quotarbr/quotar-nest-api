@@ -9,10 +9,10 @@ export class ReqProdutoDto {
   prodt_fotos?:     FotoDto[];
   prodt_nome:       string;       
   prodt_descricao?: string; 
-  prodt_tipo:       number; 
   prodt_categoria:  CategoriaDto; 
   prodt_opcoes:     CreateOpcaoDto[];
-  prodt_status?:    PRODT_STATUS; 
+  prodt_status?:    string; 
   prodt_loja:       number;
-  prodt_variants:   CreateVarianteDto;
+  prodt_tipo:       number; 
+  prodt_variants:   CreateVarianteDto[];
 }
