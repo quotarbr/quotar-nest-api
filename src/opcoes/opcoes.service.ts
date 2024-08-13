@@ -9,8 +9,8 @@ export class OpcoesService {
   constructor(private prismaService: PrismaService){}
 
   async create(opcaoDto: CreateOpcaoDto[]) {
-    const hasOpcao = opcaoDto.map( (opcao => {
-      this.prismaService.opcao.findFirst({
+    const hasOpcao = opcaoDto.map( ( async opcao => {
+      await this.prismaService.opcao.findFirst({
         where: { 
           prodt_id: opcao.prodt_id,
           opc_nome: opcao.opc_nome,

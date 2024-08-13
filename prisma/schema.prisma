@@ -143,7 +143,7 @@ model Opcao {
   opc_nome    String  @db.VarChar(100)
   opc_valores String  @db.LongText
   prodt_id    Int
-  produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
+  produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onDelete: Cascade, onUpdate: Cascade, map: "fk_prodt_id")
 
   @@index([prodt_id], map: "fk_prodt_id")
   @@map("opcoes")
@@ -288,7 +288,7 @@ model Variante {
   prodt_id            Int
   tp_prec_id          Int
   orcamento_variantes Orcamento_variante[]
-  produtos            Produto              @relation(fields: [prodt_id], references: [prodt_id], onDelete: Restrict, onUpdate: Restrict, map: "prodt_id")
+  produtos            Produto              @relation(fields: [prodt_id], references: [prodt_id], onDelete: Cascade, onUpdate: Cascade, map: "prodt_id")
   tipos_precos        Tipos_preco          @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
 
   @@index([prodt_id], map: "prodt_id")

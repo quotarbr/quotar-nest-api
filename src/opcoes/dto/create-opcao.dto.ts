@@ -1,6 +1,6 @@
 
 
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateOpcaoDto {
 
@@ -13,6 +13,6 @@ export class CreateOpcaoDto {
     opc_valores: string;
     
     @IsNumber()
-    @IsNotEmpty()
-    prodt_id: number;
+    @IsOptional()
+    prodt_id?: number;
 }

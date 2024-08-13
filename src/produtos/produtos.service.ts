@@ -19,14 +19,14 @@ export class ProdutosService {
   ){}
 
   async create(reqProdutoDto: ReqProdutoDto) {    
-    const hasProduto = this.prismaService.produto.findFirst({
+    const hasProduto = await this.prismaService.produto.findFirst({
       where: {
-        prodt_nome: reqProdutoDto.prodt_nome,
+        prodt_nome:  reqProdutoDto.prodt_nome,
         loj_id: reqProdutoDto.prodt_loja
       }
     })
 
-    if (!hasProduto) throw new BadRequestException("Produto já cadastrado.");
+    if (hasProduto) throw new BadRequestException("Produto já cadastrado.");
 
     const data = {
       prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
@@ -50,7 +50,7 @@ export class ProdutosService {
     const variantes = reqProdutoDto.prodt_variants.map( vr => ({
       vrnt_fotos: vr.vrnt_fotos,
       vrnt_preco: vr.vrnt_preco,
-      vrnt_opcoes: opcoesData,
+      vrnt_opcoes: vr.vrnt_opcoes,
       prodt_id: produto.prodt_id,
       tp_prec_id: vr.tp_prec_id
     }))
