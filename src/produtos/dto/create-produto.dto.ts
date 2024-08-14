@@ -1,16 +1,28 @@
-import { CreateOpcaoDto } from "src/opcoes/dto/create-opcao.dto";
-import { CreateTiposPrecoDto } from "src/tipos_precos/dto/create-tipos_preco.dto";
-import { CreateVarianteDto } from "src/variantes/dto/create-variante.dto";
-import { PRODT_STATUS } from "../enums/prodt-status.enum";
-import { TipoDto } from "src/tipos/dto/tipo.dto";
-import { CreateLojaDto } from "src/lojas/dto/create-loja.dto";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { FotoDto } from "./foto.dto";
 
 export class CreateProdutoDto {
+
+  @IsOptional()
   prodt_fotos?:     FotoDto[];
+  
+  @IsString()
+  @IsNotEmpty()
   prodt_nome:       string;       
+  
+  @IsString()
+  @IsOptional()
   prodt_descricao?: string; 
-  prodt_loja:       CreateLojaDto;
-  prodt_tipo:       TipoDto; 
-  prodt_status:     PRODT_STATUS; 
+  
+  @IsString()
+  @IsOptional()
+  prodt_status?:    string; 
+  
+  @IsNumber()
+  @IsNotEmpty()
+  prodt_loja:       number;
+  
+  @IsNumber()
+  @IsNotEmpty()
+  prodt_tipo:       number; 
 }

@@ -1,9 +1,26 @@
-import { CreateOpcaoDto } from "src/opcoes/dto/create-opcao.dto";
+import { IsNotEmpty, isNumber, IsNumber, IsOptional, IsString } from "class-validator";
+import { OpcaoValor } from "./opcao-valor.dto";
 
 export class CreateVarianteDto {
-    vrnt_fotos:     string;
-    vrnt_preco:     number
-    vrnt_opcoes?:   CreateOpcaoDto[];
-    prodt_id?:      number;
-    tp_prec_id:     number;
+    
+    @IsString()
+    @IsOptional()
+    vrnt_fotos?: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    vrnt_preco: number;
+
+    @IsString()
+    @IsOptional()
+    vrnt_opcoes?: OpcaoValor[];
+
+    @IsNumber()
+    @IsNotEmpty()
+    prodt_id: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    tp_prec_id: number;
+
 }

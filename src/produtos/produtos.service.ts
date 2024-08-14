@@ -5,7 +5,7 @@ import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { VariantesService } from 'src/variantes/variantes.service';
 import { FotoDto } from './dto/foto.dto';
-import { ReqProdutoDto } from './dto/req-produto.dto';
+import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 
 
@@ -18,48 +18,39 @@ export class ProdutosService {
     private varianteService: VariantesService
   ){}
 
-  async create(reqProdutoDto: ReqProdutoDto) {    
+  async create(createProdutoDto: CreateProdutoDto) {    
     const hasProduto = await this.prismaService.produto.findFirst({
       where: {
-        prodt_nome:  reqProdutoDto.prodt_nome,
-        loj_id: reqProdutoDto.prodt_loja
+        prodt_nome: createProdutoDto.prodt_nome,
+        loj_id: createProdutoDto.prodt_loja
       }
     })
 
     if (hasProduto) throw new BadRequestException("Produto já cadastrado.");
 
     const data = {
-      prodt_fotos: await this.uploadFotos(reqProdutoDto.prodt_fotos),
-      prodt_nome: reqProdutoDto.prodt_nome,
-      prodt_descricao: reqProdutoDto.prodt_descricao,
-      loj_id: reqProdutoDto.prodt_loja,
-      tp_id: reqProdutoDto.prodt_tipo,
-      prodt_status: PRODT_STATUS.liberacao
+      prodt_fotos: await this.uploadFotos(createProdutoDto.prodt_fotos),
+      prodt_nome: createProdutoDto.prodt_nome,
+      prodt_descricao: createProdutoDto.prodt_descricao,
+      loj_id: createProdutoDto.prodt_loja,
+      tp_id: createProdutoDto.prodt_tipo,
+      prodt_status: await this.escolheStatus("liberacao")
     }
 
     const produto = await this.prismaService.produto.create({ data });
-
-    const opcoesData: CreateOpcaoDto[] = reqProdutoDto.prodt_opcoes.map( op => ({
-      opc_nome: op.opc_nome,
-      opc_valores: JSON.stringify(op.opc_valores),
-      prodt_id: produto.prodt_id    
-    }))
-
-    await this.opcoesService.create(opcoesData);
     
-    const variantes = reqProdutoDto.prodt_variants.map( vr => ({
-      vrnt_fotos: vr.vrnt_fotos,
-      vrnt_preco: vr.vrnt_preco,
-      vrnt_opcoes: vr.vrnt_opcoes,
-      prodt_id: produto.prodt_id,
-      tp_prec_id: vr.tp_prec_id
-    }))
+    // const variantes = reqProdutoDto.prodt_variants.map( vr => ({
+    //   vrnt_fotos: vr.vrnt_fotos,
+    //   vrnt_preco: vr.vrnt_preco,
+    //   vrnt_opcoes: vr.vrnt_opcoes,
+    //   prodt_id: produto.prodt_id,
+    //   tp_prec_id: vr.tp_prec_id
+    // }))
 
-    await this.varianteService.create(variantes); 
+    // await this.varianteService.create(variantes); 
 
     return {
-      produto,
-      variantes,
+      id: produto.prodt_id,
       message: "Produto criado com sucesso.",
       statusCode: HttpStatus.CREATED
     }

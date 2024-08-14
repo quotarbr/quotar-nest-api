@@ -13,6 +13,6 @@ export class CreateOpcaoDto {
     opc_valores: string;
     
     @IsNumber()
-    @IsOptional()
-    prodt_id?: number;
+    @IsNotEmpty()
+    prodt_id: number;
 }
