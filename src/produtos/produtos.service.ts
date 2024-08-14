@@ -42,7 +42,7 @@ export class ProdutosService {
     const opcoesData: CreateOpcaoDto[] = reqProdutoDto.prodt_opcoes.map( op => ({
       opc_nome: op.opc_nome,
       opc_valores: JSON.stringify(op.opc_valores),
-      prodt_id: produto.prodt_id
+      prodt_id: produto.prodt_id    
     }))
 
     await this.opcoesService.create(opcoesData);

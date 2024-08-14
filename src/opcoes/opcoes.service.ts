@@ -9,17 +9,19 @@ export class OpcoesService {
   constructor(private prismaService: PrismaService){}
 
   async create(opcaoDto: CreateOpcaoDto[]) {
-    const hasOpcao = opcaoDto.map( ( async opcao => {
-      await this.prismaService.opcao.findFirst({
+    const hasOpcao = await Promise.all(opcaoDto.map(async opcao => {
+      return await this.prismaService.opcao.findFirst({
         where: { 
           prodt_id: opcao.prodt_id,
           opc_nome: opcao.opc_nome,
         }
-      })
-    }))
+      });
+    }));
 
-    if(hasOpcao) throw new BadRequestException("Opção já cadastrada.")
-
+    hasOpcao.forEach( op => {
+      if(op) throw new BadRequestException("Opção já cadastrada.")
+    })
+    
     const data = opcaoDto.map( opcao => ({
       opc_nome: opcao.opc_nome,
       opc_valores: JSON.stringify(opcao.opc_valores),
