@@ -4,6 +4,7 @@ import { UpdateVarianteDto } from './dto/update-variante.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { STATUS_CODES } from 'http';
 import { json } from 'stream/consumers';
+import { OpcaoValor } from './dto/opcao-valor.dto';
 
 @Injectable()
 export class VariantesService {
@@ -12,22 +13,31 @@ export class VariantesService {
   ){}
 
   async create(createVarianteDto: CreateVarianteDto[]) {
+    const opcoes = createVarianteDto.map((vr) => vr.vrnt_opcoes).flat();
+    console.log(opcoes)
+    await this.ensureOpcoeNotExist(opcoes);
 
-    const data =  createVarianteDto.map( variante => ({
-      vrnt_fotos: JSON.stringify(variante.vrnt_fotos),
-      vrnt_preco: variante.vrnt_preco,
-      vrnt_opcoes: JSON.stringify(variante.vrnt_opcoes),
-      prodt_id: variante.prodt_id,
-      tp_prec_id: variante.tp_prec_id
-    }))
 
-    const variantes = await this.prismaService.variante.createMany({data})
+
     
-    return {
-      variantes,
-      message: "Variante criada com sucesso",
-      statusCode: HttpStatus.CREATED
-    }
+    
+
+    // const data =  createVarianteDto.map( variante => ({
+    //   vrnt_fotos: JSON.stringify(variante.vrnt_fotos),
+    //   vrnt_preco: variante.vrnt_preco,
+    //   vrnt_opcoes: JSON.stringify(variante.vrnt_opcoes),
+    //   prodt_id: variante.prodt_id,
+    //   tp_prec_id: variante.tp_prec_id
+    // }))
+
+    // const variantes = await this.prismaService.variante.createMany({data});
+    // //verificar se as opcoes existem fazer um for nelas
+
+    // return {
+    //   variantes,
+    //   message: "Variante criada com sucesso",
+    //   statusCode: HttpStatus.CREATED
+    // }
   }
 
   async findAll() {
@@ -77,5 +87,20 @@ export class VariantesService {
     })
     if(!variante) throw new BadRequestException("Variante não encontrada");
     else return variante;
+  }
+
+  async ensureOpcoeNotExist(opcoesValor: OpcaoValor[]) {
+    for (const op of opcoesValor) {
+      
+      const opcao = await this.prismaService.opcao.findUnique({
+        where: { opc_id: op.opc_id }
+      });
+
+  
+      if (opcao && JSON.parse(opcao.opc_valores).includes(op.opc_valor)) {
+        throw new BadRequestException("A opção com o valor especificado já existe.");
+      }
+    }
+    return true;
   }
 }
