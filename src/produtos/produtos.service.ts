@@ -38,16 +38,6 @@ export class ProdutosService {
     }
 
     const produto = await this.prismaService.produto.create({ data });
-    
-    // const variantes = reqProdutoDto.prodt_variants.map( vr => ({
-    //   vrnt_fotos: vr.vrnt_fotos,
-    //   vrnt_preco: vr.vrnt_preco,
-    //   vrnt_opcoes: vr.vrnt_opcoes,
-    //   prodt_id: produto.prodt_id,
-    //   tp_prec_id: vr.tp_prec_id
-    // }))
-
-    // await this.varianteService.create(variantes); 
 
     return {
       id: produto.prodt_id,
@@ -57,7 +47,33 @@ export class ProdutosService {
   }
 
   async findAll() {
-    return await this.prismaService.produto.findMany();
+    return await this.prismaService.produto.findMany({
+      select: {
+        prodt_id: true,
+        prodt_fotos: true,
+        lojas: {
+          select:{
+            loj_id: true,
+            loj_nome: true,
+          }
+        },
+        variantes: {
+          select: {
+            prodt_id: true,
+            vrnt_fotos: true,
+            vrnt_preco: true,
+            vrnt_opcoes: true,
+            tipos_precos: {
+              select: {
+                tp_prec_id: true,
+                tp_prec_nome: true
+              }
+            }
+          }
+          //jogar tipo para fora
+        }
+      }
+    });
   }
 
   async findOne(id: number) {
@@ -104,6 +120,22 @@ export class ProdutosService {
     const produto = await this.prismaService.produto.findUnique({
       where: { 
         prodt_id: id
+      },
+      include: {
+        variantes: {
+          select: {
+            prodt_id: true,
+            vrnt_fotos: true,
+            vrnt_preco: true,
+            vrnt_opcoes: true,
+            tipos_precos: {
+              select: {
+                tp_prec_id: true,
+                tp_prec_nome: true
+              }
+            }
+          }
+        }
       }
     })
     if(!produto) throw new BadRequestException("Produto não encontrado");
