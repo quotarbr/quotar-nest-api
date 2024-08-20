@@ -1,20 +1,12 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, PRODT_STATUS } from '@prisma/client';
-import { CreateOpcaoDto } from 'src/opcoes/dto/create-opcao.dto';
 import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { VariantesService } from 'src/variantes/variantes.service';
 import { FotoDto } from './dto/foto.dto';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
-import { contains } from 'class-validator';
-
-class FiltrosDto {
-  tipo: number;
-  loja: number;
-  opcao: number;
-  string: string;
-}
+import { FiltrosDto } from './dto/filtros-produto.dto';
 
 @Injectable()
 export class ProdutosService {
