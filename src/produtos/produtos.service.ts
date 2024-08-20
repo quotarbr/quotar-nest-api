@@ -1,5 +1,5 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
-import { PRODT_STATUS } from '@prisma/client';
+import { Prisma, PRODT_STATUS } from '@prisma/client';
 import { CreateOpcaoDto } from 'src/opcoes/dto/create-opcao.dto';
 import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -7,7 +7,14 @@ import { VariantesService } from 'src/variantes/variantes.service';
 import { FotoDto } from './dto/foto.dto';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
+import { contains } from 'class-validator';
 
+class FiltrosDto {
+  tipo: number;
+  loja: number;
+  opcao: number;
+  string: string;
+}
 
 @Injectable()
 export class ProdutosService {
@@ -46,31 +53,62 @@ export class ProdutosService {
     }
   }
 
-  async findAll() {
+  async findAll(filtros?: FiltrosDto) {
+    const whereClause: Prisma.ProdutoWhereInput = {}
+
+    if(filtros?.tipo){
+      whereClause.tp_id = filtros?.tipo
+    }
+    if(filtros?.loja){
+      whereClause.loj_id = filtros?.loja
+    }
+
+    if(filtros?.opcao){
+      whereClause.opcoes = {
+        some:{
+          opc_id: +filtros?.opcao
+        }
+      }
+    }
+
+    // if(filtros.string){
+    //   whereClause.OR = {
+    //     lojas : {
+    //       some: {
+    //         loj_nome: { contains: filtros.string }
+    //       }
+    //     },
+    //     opcoes :{
+    //       some:{
+    //         opc_nome: { contains: filtros.string }
+    //       }
+    //     },
+    //     prodt_nome:  { contains: filtros.string }
+    //     prodt_descricao:  { contains: filtros.string }
+    //   }
+    // }
+    
     return await this.prismaService.produto.findMany({
+      where: whereClause,
       select: {
         prodt_id: true,
         prodt_fotos: true,
-        lojas: {
-          select:{
-            loj_id: true,
-            loj_nome: true,
-          }
-        },
-        variantes: {
+        prodt_nome: true,
+        tipos: {
           select: {
-            prodt_id: true,
-            vrnt_fotos: true,
-            vrnt_preco: true,
-            vrnt_opcoes: true,
-            tipos_precos: {
+            tp_nome: true,
+            categorias: {
               select: {
-                tp_prec_id: true,
-                tp_prec_nome: true
+                cat_nome:true
               }
             }
           }
-          //jogar tipo para fora
+        },
+        opcoes: {
+          select: {
+            opc_nome: true,
+            opc_valores: true
+          }
         }
       }
     });

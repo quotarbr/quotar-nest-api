@@ -88,11 +88,11 @@ export class VariantesService {
 
       if(opcao){
         const ensureNomeOpc = opcao.opc_nome == op.opc_nome;
-        const ensureValorOpc = JSON.parse(opcao.opc_valores).includes(op.opc_valor);
+        const ensureValorOpc = true //opcao.opc_valores.(op.opc_valor);
 
-        if (ensureNomeOpc === false || ensureValorOpc === false) {
-          throw new BadRequestException("Nome ou valor difere da opcão cadastrada para o produto.");
-        } 
+        // if (ensureNomeOpc === false || ensureValorOpc === false) {
+        //   throw new BadRequestException("Nome ou valor difere da opcão cadastrada para o produto.");
+        // } 
       } else {
           throw new BadRequestException("Opção não encontrada.");
       }

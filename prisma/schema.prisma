@@ -141,7 +141,7 @@ model Lojista {
 model Opcao {
   opc_id      Int     @id @default(autoincrement())
   opc_nome    String  @db.VarChar(100)
-  opc_valores String  @db.LongText
+  opc_valores Json    
   prodt_id    Int
   produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
 
@@ -211,7 +211,7 @@ model Planos {
 
 model Produto {
   prodt_id         Int          @id @default(autoincrement())
-  prodt_fotos      String?      @db.LongText
+  prodt_fotos      Json?        
   prodt_nome       String       @db.VarChar(100)
   prodt_descricao  String?      @db.VarChar(255)
   prodt_created_at DateTime     @default(now())
@@ -282,9 +282,9 @@ model Usuario {
 
 model Variante {
   vrnt_id             Int                  @id @default(autoincrement())
-  vrnt_fotos          String?              @db.LongText
+  vrnt_fotos          Json?               
   vrnt_preco          Decimal              @db.Decimal(10, 2)
-  vrnt_opcoes         String?              @db.LongText
+  vrnt_opcoes         Json?               
   prodt_id            Int
   tp_prec_id          Int
   orcamento_variantes Orcamento_variante[]
