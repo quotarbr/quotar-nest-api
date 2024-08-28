@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@
 import { ProdutosService } from './produtos.service';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { CreateProdutoDto } from './dto/create-produto.dto';
+import { FiltrosDto } from './dto/filtros-produto.dto';
 
 @Controller('produtos')
 export class ProdutosController {
@@ -13,7 +14,7 @@ export class ProdutosController {
   }
 
   @Get()
-  findAll(@Query() filtros: any) {
+  findAll(@Query() filtros: FiltrosDto ) {
     return this.produtosService.findAll(filtros);
   }
 

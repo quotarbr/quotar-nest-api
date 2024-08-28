@@ -41,6 +41,17 @@ export class LojasService {
     return await this.prismaService.loja.findMany();
   }
 
+  async findByNome(nome: string){
+    return await this.prismaService.loja.findMany({
+      where: {
+        loj_nome: nome
+      },
+      select: {
+        loj_id: true
+      }
+    })
+  }
+
   async findOne(id: number) {
     const loja = await this.prismaService.loja.findUnique({
       where: { loj_id: id }

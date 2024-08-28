@@ -1,20 +1,18 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma, PRODT_STATUS } from '@prisma/client';
-import { OpcoesService } from 'src/opcoes/opcoes.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { VariantesService } from 'src/variantes/variantes.service';
 import { FotoDto } from './dto/foto.dto';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { FiltrosDto } from './dto/filtros-produto.dto';
+import { LojasService } from 'src/lojas/lojas.service';
 
 @Injectable()
 export class ProdutosService {
 
   constructor(
     private prismaService: PrismaService,
-    private opcoesService: OpcoesService,
-    private varianteService: VariantesService
+    private lojasService: LojasService
   ){}
 
   async create(createProdutoDto: CreateProdutoDto) {    
@@ -63,25 +61,29 @@ export class ProdutosService {
       }
     }
 
-    // if(filtros.string){
-    //   whereClause.OR = {
-    //     lojas : {
-    //       some: {
-    //         loj_nome: { contains: filtros.string }
-    //       }
-    //     },
-    //     opcoes :{
-    //       some:{
-    //         opc_nome: { contains: filtros.string }
-    //       }
-    //     },
-    //     prodt_nome:  { contains: filtros.string }
-    //     prodt_descricao:  { contains: filtros.string }
-    //   }
-    // }
-    
+    if(filtros?.string){
+      const lojasCorrespondentes = await this.lojasService.findByNome(filtros?.string);
+      const lojaIds = lojasCorrespondentes.map(loja => loja.loj_id);
+
+      whereClause.OR = [
+        { loj_id: { in: lojaIds } },
+        { 
+          opcoes :{
+            some:{ 
+              opc_nome: { contains: filtros?.string }
+            }
+          } 
+        },
+        { prodt_nome:  { contains: filtros.string } },
+        { prodt_descricao:  { contains: filtros.string } }
+      ]
+    }
+
+    //buscar por categoria e tipo
+
     return await this.prismaService.produto.findMany({
       where: whereClause,
+      take: filtros?.limit,
       select: {
         prodt_id: true,
         prodt_fotos: true,

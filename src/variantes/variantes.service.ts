@@ -22,9 +22,14 @@ export class VariantesService {
       tp_prec_id: variante.tp_prec_id
     }))
 
-    const variantes = await this.prismaService.variante.createMany({data});
+    const createdVariantes = await Promise.all(
+      data.map( async (variante) => { 
+        return await this.prismaService.variante.create({data: variante})
+      })
+    )
+
     return {
-      variantes,
+      createdVariantes,
       message: "Variante(s) criada com sucesso",
       statusCode: HttpStatus.CREATED
     }

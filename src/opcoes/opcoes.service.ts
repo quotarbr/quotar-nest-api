@@ -24,14 +24,20 @@ export class OpcoesService {
     
     const data = opcaoDto.map( opcao => ({
       opc_nome: opcao.opc_nome,
-      opc_valores: JSON.stringify(opcao.opc_valores),
+      opc_valores: opcao.opc_valores,
       prodt_id: opcao.prodt_id
     }))
 
-    const opcao = await this.prismaService.opcao.createMany({ data })
+    const createdOpcoes = await Promise.all(
+      data.map( async (opcaoData) => {
+        return await this.prismaService.opcao.create({data: opcaoData})
+      })
+    )
+
+    const createdIds = createdOpcoes.map(opcao => opcao.opc_id);
     
     return {
-      opcao,
+      createdIds,
       message: "Opções criadas com sucesso.",
       statusCode: HttpStatus.CREATED,
     }    
