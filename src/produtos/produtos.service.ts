@@ -6,13 +6,15 @@ import { CreateProdutoDto } from './dto/create-produto.dto';
 import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { FiltrosDto } from './dto/filtros-produto.dto';
 import { LojasService } from 'src/lojas/lojas.service';
+import { TiposService } from 'src/tipos/tipos.service';
 
 @Injectable()
 export class ProdutosService {
 
   constructor(
     private prismaService: PrismaService,
-    private lojasService: LojasService
+    private lojasService: LojasService,
+    private tiposService: TiposService
   ){}
 
   async create(createProdutoDto: CreateProdutoDto) {    
@@ -62,26 +64,19 @@ export class ProdutosService {
     }
 
     if(filtros?.string){
-      const lojasCorrespondentes = await this.lojasService.findByNome(filtros?.string);
-      const lojaIds = lojasCorrespondentes.map(loja => loja.loj_id);
+      const lojaIds = (await this.lojasService.findByNome(filtros?.string)).map(loja => loja.loj_id);
 
       whereClause.OR = [
-        { loj_id: { in: lojaIds } },
-        { 
-          opcoes :{
-            some:{ 
-              opc_nome: { contains: filtros?.string }
-            }
-          } 
-        },
-        { prodt_nome:  { contains: filtros.string } },
-        { prodt_descricao:  { contains: filtros.string } }
+        {loj_id:{ in: lojaIds }},
+        {opcoes:{ some:{ opc_nome: { contains: filtros?.string.trim()}}}},
+        {prodt_nome:{ contains: filtros?.string.trim() }},
+        {prodt_descricao:{ contains: filtros?.string.trim() }},
+        {tipos: {tp_nome: { contains: filtros?.string.trim() }}},
+        {tipos: {categorias: {cat_nome: {contains: filtros?.string.trim()}}}}
       ]
     }
-
-    //buscar por categoria e tipo
-
-    return await this.prismaService.produto.findMany({
+    
+    const resultados = await this.prismaService.produto.findMany({
       where: whereClause,
       take: filtros?.limit,
       select: {
@@ -103,15 +98,25 @@ export class ProdutosService {
             opc_nome: true,
             opc_valores: true
           }
-        }
+        },
       }
     });
+
+    const totalProdutos = await this.prismaService.produto.count({
+      where: whereClause
+    })
+
+    return {
+      statusCode: HttpStatus.OK,
+      resultados,
+      total: totalProdutos
+    }
   }
 
   async findOne(id: number) {
     const produto = await this.ensureProdutoExist(id);
     return {
-      data: produto,
+      resultado: produto,
       statusCode: HttpStatus.OK
     }
   }
