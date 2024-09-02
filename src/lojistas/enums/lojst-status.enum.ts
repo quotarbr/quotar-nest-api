@@ -1,5 +1,5 @@
 export enum LOJST_STATUS {
-    ativo = 'ativo',
-    inativo = 'inativo',
-    pendente = 'pendente'
+    ATIVO = 'ativo',
+    LIBERACAO = 'liberacao',
+    INATIVO = 'inativo'
 }

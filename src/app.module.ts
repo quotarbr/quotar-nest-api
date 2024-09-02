@@ -13,9 +13,10 @@ import { EstadosModule } from './estados/estados.module';
 import { CidadesModule } from './cidades/cidades.module';
 import { BairrosModule } from './bairros/bairros.module';
 import { LojistasModule } from './lojistas/lojistas.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
 
 @Module({
-  imports: [ProdutosModule, PrismaModule, OpcoesModule, VariantesModule, TiposPrecosModule, TiposModule, LojasModule, CategoriasModule, EstadosModule, CidadesModule, BairrosModule, LojistasModule],
+  imports: [ProdutosModule, PrismaModule, OpcoesModule, VariantesModule, TiposPrecosModule, TiposModule, LojasModule, CategoriasModule, EstadosModule, CidadesModule, BairrosModule, LojistasModule, UsuariosModule],
   controllers: [AppController],
   providers: [AppService],
 })

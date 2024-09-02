@@ -7,7 +7,7 @@ export class CreateVarianteDto {
     @IsArray()
     @IsOptional()
     @IsString({each:true})
-    vrnt_fotos?: string[];
+    vrnt_fotos?: string;
 
     @IsNumber()
     @IsNotEmpty()

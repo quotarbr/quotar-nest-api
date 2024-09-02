@@ -116,7 +116,7 @@ model Lojista {
   lojst_data_cadastro     DateTime                 @default(now())
   lojst_cep               String?                  @db.VarChar(10)
   lojst_endereco          String?                  @db.VarChar(150)
-  lojst_status            LOJST_STATUS             @default(pendente)
+  lojst_status            LOJST_STATUS             @default(liberacao)
   lojst_loguin            String                   @db.VarChar(50)
   lojst_senha_hash        String                   @db.VarChar(255)
   lojst_token_inspiracao  String?                  @db.VarChar(255)
@@ -258,16 +258,15 @@ model Usuario {
   usr_data_cadastro       DateTime?                @default(now()) @db.DateTime(0)
   usr_cep                 String?                  @db.VarChar(10)
   usr_endereco            String?                  @db.VarChar(150)
-  usr_status              USR_STATUS?
+  usr_status              USR_STATUS?              @default(liberacao)
   cid_id                  Int?
   bai_id                  Int?
   est_id                  Int?
-  usr_prod_favoritos      String?                  @db.LongText
-  usr_loj_favoritas       String?                  @db.LongText
-  usr_loguin              String?                  @db.VarChar(50)
+  usr_prod_favoritos      Json?                  
+  usr_loj_favoritas       Json?                 
   usr_senha_hash          String?                  @db.VarChar(255)
   usr_token_inspiracao    String?                  @db.VarChar(255)
-  usr_token_recuperaca    String?                  @db.VarChar(255)
+  usr_token_recuperacao   String?                  @db.VarChar(255)
   orcamentos              Orcamento[]
   permissoes_notificacoes Permissoes_notificacao[]
   cidades                 Cidade?                  @relation(fields: [cid_id], references: [cid_id], onDelete: Restrict, map: "usuarios_ibfk_1")
@@ -342,12 +341,12 @@ enum FATR_STATUS {
 
 enum USR_STATUS {
   ativo
+  liberacao
   inativo
-  pendente
 }
 
 enum LOJST_STATUS {
   ativo
-  pendente
+  liberacao
   inativo
 }
