@@ -117,7 +117,7 @@ model Lojista {
   lojst_cep               String?                  @db.VarChar(10)
   lojst_endereco          String?                  @db.VarChar(150)
   lojst_status            LOJST_STATUS             @default(liberacao)
-  lojst_loguin            String                   @db.VarChar(50)
+  lojst_login            String                    @db.VarChar(50)
   lojst_senha_hash        String                   @db.VarChar(255)
   lojst_token_inspiracao  String?                  @db.VarChar(255)
   lojst_token_recuperacao String?                  @db.VarChar(255)
@@ -211,7 +211,7 @@ model Planos {
 
 model Produto {
   prodt_id         Int          @id @default(autoincrement())
-  prodt_fotos      Json?        
+  prodt_fotos      Json?      
   prodt_nome       String       @db.VarChar(100)
   prodt_descricao  String?      @db.VarChar(255)
   prodt_created_at DateTime     @default(now())
@@ -263,7 +263,7 @@ model Usuario {
   bai_id                  Int?
   est_id                  Int?
   usr_prod_favoritos      Json?                  
-  usr_loj_favoritas       Json?                 
+  usr_loj_favoritas       Json?       
   usr_senha_hash          String?                  @db.VarChar(255)
   usr_token_inspiracao    String?                  @db.VarChar(255)
   usr_token_recuperacao   String?                  @db.VarChar(255)
@@ -281,9 +281,9 @@ model Usuario {
 
 model Variante {
   vrnt_id             Int                  @id @default(autoincrement())
-  vrnt_fotos          Json?               
+  vrnt_fotos          Json?              
   vrnt_preco          Decimal              @db.Decimal(10, 2)
-  vrnt_opcoes         Json?               
+  vrnt_opcoes         Json?              
   prodt_id            Int
   tp_prec_id          Int
   orcamento_variantes Orcamento_variante[]

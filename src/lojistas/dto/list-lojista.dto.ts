@@ -12,7 +12,7 @@ export class ListLojistaDto {
     lojst_endereco?:            string;
     lojst_status:               LOJST_STATUS;
     @Exclude()
-    lojst_loguin:               string;
+    lojst_login:               string;
     @Exclude()
     lojst_senha_hash:           string;
     @Exclude()
