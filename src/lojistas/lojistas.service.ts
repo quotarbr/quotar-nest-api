@@ -3,10 +3,10 @@ import { CreateLojistaDto } from './dto/create-lojista.dto';
 
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { LOJST_STATUS, Prisma } from '@prisma/client';
 import { plainToClass } from 'class-transformer';
 import { ListLojistaDto } from './dto/list-lojista.dto';
-import { STATUS_CODES } from 'http';
+
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class LojistasService {
@@ -24,11 +24,25 @@ export class LojistasService {
     })
 
     if(hasLojista) {
-      throw new BadRequestException("Usuário já cadastrado");
+      throw new BadRequestException("Lojista já cadastrado");
     }
 
     const data = {
-      ...createLojistaDto
+      lojst_nome: createLojistaDto.lojst_nome,
+      lojst_cpf: createLojistaDto.lojst_cpf,
+      lojst_img_perfil: createLojistaDto.lojst_img_perfil,
+      lojst_telefone: createLojistaDto.lojst_telefone,
+      lojst_email: createLojistaDto.lojst_email,
+      lojst_cep: createLojistaDto.lojst_cep,
+      lojst_endereco: createLojistaDto.lojst_endereco,
+      lojst_loguin: createLojistaDto.lojst_loguin,
+      lojst_senha_hash: await bcrypt.hash(createLojistaDto.lojst_senha, 10),
+      lojst_token_inspiracao: createLojistaDto.lojst_token_inspiracao,
+      lojst_token_recuperacao: createLojistaDto.lojst_token_recuperacao,
+      cidades: { connect: { cid_id: createLojistaDto.cid_id}},
+      bairros: { connect: { bai_id: createLojistaDto.bai_id}},
+      estados: { connect: { est_id: createLojistaDto.est_id}},
+      lojst_loja_parceira: createLojistaDto.lojst_loja_parceira
     };
 
     const lojista = await this.prismaService.lojista.create({data});
@@ -38,6 +52,7 @@ export class LojistasService {
       message: "Lojista cadastrado com sucesso",
       statusCode: HttpStatus.CREATED
     }
+
   }
 
   async findAll() {
@@ -54,9 +69,28 @@ export class LojistasService {
   }
 
   async update(id: number, updateLojistaDto: UpdateLojistaDto) {
-    const data = await this.ensureLojistaExists(id);
+    await this.ensureLojistaExists(id);
+
+    const data = {
+      lojst_nome: updateLojistaDto.lojst_nome,
+      lojst_cpf: updateLojistaDto.lojst_cpf,
+      lojst_img_perfil: updateLojistaDto.lojst_img_perfil,
+      lojst_telefone: updateLojistaDto.lojst_telefone,
+      lojst_email: updateLojistaDto.lojst_email,
+      lojst_cep: updateLojistaDto.lojst_cep,
+      lojst_endereco: updateLojistaDto.lojst_endereco,
+      lojst_loguin: updateLojistaDto.lojst_loguin,
+      lojst_senha_hash: await bcrypt.hash(updateLojistaDto.lojst_senha, 10),
+      lojst_token_inspiracao: updateLojistaDto.lojst_token_inspiracao,
+      lojst_token_recuperacao: updateLojistaDto.lojst_token_recuperacao,
+      cidades: { connect: { cid_id: updateLojistaDto.cid_id}},
+      bairros: { connect: { bai_id: updateLojistaDto.bai_id}},
+      estados: { connect: { est_id: updateLojistaDto.est_id}},
+      lojst_loja_parceira: updateLojistaDto.lojst_loja_parceira,
+    }
+    
     const lojista = await this.prismaService.lojista.update({
-      data: updateLojistaDto,
+      data,
       where: { lojst_id: id }
     }) 
 
@@ -81,7 +115,7 @@ export class LojistasService {
 
   private async ensureLojistaExists(id: number) {
     const lojista = await this.prismaService.lojista.findUnique({
-      where: { lojst_id: id }
+      where: {  lojst_id: id }
     });
     if (!lojista) throw new NotFoundException('Lojista não encontrado.');
     return lojista;

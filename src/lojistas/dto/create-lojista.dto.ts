@@ -1,4 +1,4 @@
-import { IsDate, IsDateString, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsDate, IsDateString, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { LOJST_STATUS } from "../enums/lojst-status.enum";
 import { Exclude, Transform } from 'class-transformer';
 
@@ -44,8 +44,20 @@ export class CreateLojistaDto {
     lojst_loguin: string;
 
     @IsString()
+    @MinLength(4)
+    @MaxLength(20)
+    @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: `Senha muito fraca.
+    
+    A senha deve conter:
+      - Pelo menos uma letra maiúscula
+      - Pelo menos uma letra minúscula
+      - Um número ou caractere especial
+    
+    Não pode conter ponto (.) ou nova linha.`,
+    })
     @IsNotEmpty()
-    lojst_senha_hash: string;
+    lojst_senha: string;
 
     @IsString()
     @IsOptional()
