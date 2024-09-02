@@ -7,6 +7,7 @@ import { plainToClass } from 'class-transformer';
 import { ListLojistaDto } from './dto/list-lojista.dto';
 
 import * as bcrypt from 'bcrypt';
+import { LojistaLoginDto } from './dto/login-lojista.dto';
 
 @Injectable()
 export class LojistasService {
@@ -14,6 +15,25 @@ export class LojistasService {
   constructor(
     private prismaService: PrismaService
   ){}
+
+  async login(lojistaLoginDto:LojistaLoginDto){
+    const lojista = await this.prismaService.lojista.findFirst({
+      where: {
+        lojst_login: lojistaLoginDto.lojst_login
+      }
+    })
+
+    const isMatch = await bcrypt.compare(lojistaLoginDto.lojst_senha, lojista.lojst_senha_hash);
+
+    if(isMatch){
+      const token = ""
+      return {
+        token,
+        message: "Autenticado com sucesso",
+        statusCode: HttpStatus.OK
+      }
+    }
+  }
 
   async create(createLojistaDto: CreateLojistaDto) {
     const hasLojista = await this.prismaService.lojista.findFirst({
@@ -37,8 +57,6 @@ export class LojistasService {
       lojst_endereco: createLojistaDto.lojst_endereco,
       lojst_login: createLojistaDto.lojst_login,
       lojst_senha_hash: await bcrypt.hash(createLojistaDto.lojst_senha, 10),
-      lojst_token_inspiracao: createLojistaDto.lojst_token_inspiracao,
-      lojst_token_recuperacao: createLojistaDto.lojst_token_recuperacao,
       cidades: { connect: { cid_id: createLojistaDto.cid_id}},
       bairros: { connect: { bai_id: createLojistaDto.bai_id}},
       estados: { connect: { est_id: createLojistaDto.est_id}},

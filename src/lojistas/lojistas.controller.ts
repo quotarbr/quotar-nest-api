@@ -2,10 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { LojistasService } from './lojistas.service';
 import { CreateLojistaDto } from './dto/create-lojista.dto';
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
+import { LojistaLoginDto } from './dto/login-lojista.dto';
 
 @Controller('lojistas')
 export class LojistasController {
   constructor(private readonly lojistasService: LojistasService) {}
+
+  @Post("login")
+  login(@Body() lojistaLoginDto: LojistaLoginDto){
+    return this.lojistasService.login(lojistaLoginDto)
+  }
 
   @Post()
   create(@Body() createLojistaDto: CreateLojistaDto) {
@@ -34,5 +40,5 @@ export class LojistasController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.lojistasService.remove(+id);
-  }
+  }  
 }

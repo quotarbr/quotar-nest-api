@@ -117,14 +117,15 @@ model Lojista {
   lojst_cep               String?                  @db.VarChar(10)
   lojst_endereco          String?                  @db.VarChar(150)
   lojst_status            LOJST_STATUS             @default(liberacao)
-  lojst_login            String                    @db.VarChar(50)
   lojst_senha_hash        String                   @db.VarChar(255)
+  lojst_web_token         String?                  @db.VarChar(255)
   lojst_token_inspiracao  String?                  @db.VarChar(255)
   lojst_token_recuperacao String?                  @db.VarChar(255)
   cid_id                  Int
   bai_id                  Int
   est_id                  Int
   lojst_loja_parceira     String?                  @db.LongText
+  lojst_login             String                   @db.VarChar(50)
   faturas                 Fatura[]
   lojas                   Loja[]
   cidades                 Cidade                   @relation(fields: [cid_id], references: [cid_id], onUpdate: Restrict, map: "lojistas_ibfk_1")
@@ -141,7 +142,7 @@ model Lojista {
 model Opcao {
   opc_id      Int     @id @default(autoincrement())
   opc_nome    String  @db.VarChar(100)
-  opc_valores Json    
+  opc_valores String  @db.LongText
   prodt_id    Int
   produtos    Produto @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
 
@@ -211,7 +212,7 @@ model Planos {
 
 model Produto {
   prodt_id         Int          @id @default(autoincrement())
-  prodt_fotos      Json?      
+  prodt_fotos      String?      @db.LongText
   prodt_nome       String       @db.VarChar(100)
   prodt_descricao  String?      @db.VarChar(255)
   prodt_created_at DateTime     @default(now())
@@ -262,8 +263,8 @@ model Usuario {
   cid_id                  Int?
   bai_id                  Int?
   est_id                  Int?
-  usr_prod_favoritos      Json?                  
-  usr_loj_favoritas       Json?       
+  usr_prod_favoritos      String?                  @db.LongText
+  usr_loj_favoritas       String?                  @db.LongText
   usr_senha_hash          String?                  @db.VarChar(255)
   usr_token_inspiracao    String?                  @db.VarChar(255)
   usr_token_recuperacao   String?                  @db.VarChar(255)
@@ -281,9 +282,9 @@ model Usuario {
 
 model Variante {
   vrnt_id             Int                  @id @default(autoincrement())
-  vrnt_fotos          Json?              
+  vrnt_fotos          String?              @db.LongText
   vrnt_preco          Decimal              @db.Decimal(10, 2)
-  vrnt_opcoes         Json?              
+  vrnt_opcoes         String?              @db.LongText
   prodt_id            Int
   tp_prec_id          Int
   orcamento_variantes Orcamento_variante[]
