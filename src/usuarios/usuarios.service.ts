@@ -2,7 +2,7 @@ import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { USR_STATUS } from './dto/usr-status.enum';
 
 @Injectable()
@@ -29,7 +29,7 @@ export class UsuariosService {
       estados: { connect: { est_id: createUsuarioDto.est_id } },
       usr_prod_favoritos: createUsuarioDto.usr_prod_favoritos,
       usr_loj_favoritas: createUsuarioDto.usr_loj_favoritas,
-      usr_senha_hash: await this.createHashFromSenha(createUsuarioDto.usr_senha_hash),
+      usr_senha_hash: await bcrypt.hash(createUsuarioDto.usr_senha, 10),
       usr_token_inspiracao: createUsuarioDto.usr_token_inspiracao,
       usr_token_recuperacao: createUsuarioDto.usr_token_recuperacao
     };
@@ -54,16 +54,70 @@ export class UsuariosService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
+  async findOne(id: number) {
+    const usuario = await this.prismaService.usuario.findUnique({
+      where: { usr_id: id}
+    });
+    if(!usuario) throw new BadRequestException("Usuário não existe.")
+    return {
+      usuario,
+      message: "Usuário encontrado",
+      statusCode: HttpStatus.OK
+    }
   }
 
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return `This action updates a #${id} usuario`;
+  async findByEmail(email: string){
+    const usuario = await this.prismaService.usuario.findUnique({
+      where: { usr_email: email}
+    })
+    if(!usuario) throw new BadRequestException("Usuário não existe.")
+    return {
+      usuario,
+      message: "Usuário encontrado",
+      statusCode: HttpStatus.OK
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
+  async update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
+    await this.findOne(id);
+
+    const data = {
+      usr_nome: updateUsuarioDto.usr_nome,
+      usr_cpf: updateUsuarioDto.usr_cpf,
+      usr_img_perfil: updateUsuarioDto.usr_img_perfil,
+      usr_telefone: updateUsuarioDto.usr_telefone,
+      usr_email: updateUsuarioDto.usr_email,
+      usr_cep: updateUsuarioDto.usr_cep,
+      usr_endereco: updateUsuarioDto.usr_endereco,
+      usr_status: await this.escolheStatus(updateUsuarioDto.usr_status),
+      cidades: { connect: { cid_id: updateUsuarioDto.cid_id } },
+      bairros: { connect: { bai_id: updateUsuarioDto.bai_id } },
+      estados: { connect: { est_id: updateUsuarioDto.est_id } },
+      usr_prod_favoritos: updateUsuarioDto.usr_prod_favoritos,
+      usr_loj_favoritas: updateUsuarioDto.usr_loj_favoritas
+    }
+
+    const usuario = await this.prismaService.usuario.update({
+      data,
+      where: { usr_id: id }
+    })
+
+    return {
+      id: usuario.usr_id,
+      message: "Usuário atualizado com sucesso.",
+      statusCode: HttpStatus.OK
+    }
+  }
+
+  async remove(id: number) {
+    const usuario = await this.findOne(id);
+
+    if (usuario) this.prismaService.usuario.delete({ where: { usr_id: id} });
+
+    return {
+      message: "Usuário deletado com sucesso",
+      statusCode: HttpStatus.NO_CONTENT
+    } ;
   }
 
 
@@ -81,14 +135,9 @@ export class UsuariosService {
     return true;
   }
 
-  async createHashFromSenha(senha: string){
-    const hash = senha;
-    return hash;
-  }
-
-  // private async escolheStatus(status : string){
-  //   return status == "liberacao" ? USR_STATUS.LIBERACAO : status == "ativo" 
-  //     ? USR_STATUS.ATIVO : USR_STATUS.INATIVO 
-  // } 
+  async escolheStatus(status : string){
+    return status == "liberacao" ? USR_STATUS.LIBERACAO : status == "ativo" 
+      ? USR_STATUS.ATIVO : USR_STATUS.INATIVO 
+  } 
 }
 

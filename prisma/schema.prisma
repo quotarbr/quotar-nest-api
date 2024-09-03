@@ -112,7 +112,7 @@ model Lojista {
   lojst_cpf               String                   @db.VarChar(11)
   lojst_img_perfil        String?                  @db.VarChar(255)
   lojst_telefone          String                   @db.VarChar(20)
-  lojst_email             String                   @db.VarChar(150)
+  lojst_email             String                   @unique @db.VarChar(150)
   lojst_data_cadastro     DateTime                 @default(now())
   lojst_cep               String?                  @db.VarChar(10)
   lojst_endereco          String?                  @db.VarChar(150)
@@ -125,7 +125,7 @@ model Lojista {
   bai_id                  Int
   est_id                  Int
   lojst_loja_parceira     String?                  @db.LongText
-  lojst_login             String                   @db.VarChar(50)
+  lojst_login             String                   @unique @db.VarChar(50)
   faturas                 Fatura[]
   lojas                   Loja[]
   cidades                 Cidade                   @relation(fields: [cid_id], references: [cid_id], onUpdate: Restrict, map: "lojistas_ibfk_1")
@@ -255,7 +255,7 @@ model Usuario {
   usr_cpf                 String?                  @db.VarChar(11)
   usr_img_perfil          String?                  @db.VarChar(255)
   usr_telefone            String?                  @db.VarChar(20)
-  usr_email               String?                  @db.VarChar(150)
+  usr_email               String?                  @unique @db.VarChar(150)
   usr_data_cadastro       DateTime?                @default(now()) @db.DateTime(0)
   usr_cep                 String?                  @db.VarChar(10)
   usr_endereco            String?                  @db.VarChar(150)

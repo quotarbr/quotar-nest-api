@@ -7,7 +7,6 @@ import { plainToClass } from 'class-transformer';
 import { ListLojistaDto } from './dto/list-lojista.dto';
 
 import * as bcrypt from 'bcrypt';
-import { LojistaLoginDto } from './dto/login-lojista.dto';
 
 @Injectable()
 export class LojistasService {
@@ -15,25 +14,6 @@ export class LojistasService {
   constructor(
     private prismaService: PrismaService
   ){}
-
-  async login(lojistaLoginDto:LojistaLoginDto){
-    const lojista = await this.prismaService.lojista.findFirst({
-      where: {
-        lojst_login: lojistaLoginDto.lojst_login
-      }
-    })
-
-    const isMatch = await bcrypt.compare(lojistaLoginDto.lojst_senha, lojista.lojst_senha_hash);
-
-    if(isMatch){
-      const token = ""
-      return {
-        token,
-        message: "Autenticado com sucesso",
-        statusCode: HttpStatus.OK
-      }
-    }
-  }
 
   async create(createLojistaDto: CreateLojistaDto) {
     const hasLojista = await this.prismaService.lojista.findFirst({
@@ -43,9 +23,7 @@ export class LojistasService {
       }
     })
 
-    if(hasLojista) {
-      throw new BadRequestException("Lojista já cadastrado");
-    }
+    if(hasLojista) throw new BadRequestException("Lojista já cadastrado"); 
 
     const data = {
       lojst_nome: createLojistaDto.lojst_nome,
@@ -84,6 +62,10 @@ export class LojistasService {
       ...plainToClass(ListLojistaDto, data),
       statusCode: HttpStatus.OK
     }
+  }
+
+  async findByLogin(login: string){
+    return await this.prismaService.lojista.findUnique({ where: { lojst_login: login } })
   }
 
   async update(id: number, updateLojistaDto: UpdateLojistaDto) {
