@@ -18,8 +18,10 @@ export class LojistasService {
   async create(createLojistaDto: CreateLojistaDto) {
     const hasLojista = await this.prismaService.lojista.findFirst({
       where: {
-        lojst_email: createLojistaDto.lojst_email,
-        lojst_telefone: createLojistaDto.lojst_telefone
+        OR: [
+          { lojst_email: createLojistaDto.lojst_email },
+          { lojst_telefone: createLojistaDto.lojst_telefone }
+        ]
       }
     })
 

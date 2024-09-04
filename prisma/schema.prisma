@@ -124,7 +124,7 @@ model Lojista {
   cid_id                  Int
   bai_id                  Int
   est_id                  Int
-  lojst_loja_parceira     String?                  @db.LongText
+  lojst_loja_parceira     Json?                  
   lojst_login             String                   @unique @db.VarChar(50)
   faturas                 Fatura[]
   lojas                   Loja[]
