@@ -208,8 +208,6 @@ export class LojistasService {
 
     const data: Prisma.LojistaUpdateInput = {};
 
-    if(updateLojistaDto.hasOwnProperty('lojst_nome')) data.lojst_nome = updateLojistaDto.lojst_nome;
-    
     if(updateLojistaDto.hasOwnProperty('lojst_cpf')) {
       const hasCpf = await this.prismaService.lojista.findFirst({
         where: {
@@ -221,7 +219,6 @@ export class LojistasService {
       if(hasCpf) {
         throw new BadRequestException("Cpf já cadastrado!");
       }
-      data.lojst_cpf = updateLojistaDto.lojst_cpf;
     }
 
     if(updateLojistaDto.hasOwnProperty('lojst_telefone')) {
@@ -236,7 +233,6 @@ export class LojistasService {
       if(hasTelefone) {
         throw new BadRequestException("Telefone já cadastrado!");
       }
-      data.lojst_telefone = updateLojistaDto.lojst_telefone;
     }
 
     if(updateLojistaDto.hasOwnProperty('lojst_email')) {
@@ -251,7 +247,6 @@ export class LojistasService {
       if(hasEmail) {
         throw new BadRequestException("E-mail já cadastrado!");
       }
-      data.lojst_email = updateLojistaDto.lojst_email;
     }
 
     if(updateLojistaDto.hasOwnProperty('lojst_login')) {
@@ -266,26 +261,10 @@ export class LojistasService {
       if(hasLogin) {
         throw new BadRequestException("Login já cadastrado!");
       }
-      data.lojst_login = updateLojistaDto.lojst_login;
-    }
-
-    if(updateLojistaDto.hasOwnProperty('lojst_cep')) {
-      data.lojst_cep = updateLojistaDto.lojst_cep;
-    }
-
-    if(updateLojistaDto.hasOwnProperty('lojst_endereco')) {
-      data.lojst_endereco = updateLojistaDto.lojst_endereco;
-    }
-    if(updateLojistaDto.hasOwnProperty('lojst_status')) {
-      data.lojst_status = updateLojistaDto.lojst_status;
-    }
-
-    if(updateLojistaDto.hasOwnProperty('lojst_status')) {
-      data.lojst_status = updateLojistaDto.lojst_status;
     }
 
     if(updateLojistaDto.hasOwnProperty('est_id')) {
-      const hasEstado = await this.prismaService.lojista.findFirst({
+      const hasEstado = await this.prismaService.estado.findFirst({
         where: {
           est_id: updateLojistaDto.est_id
         }
@@ -293,26 +272,25 @@ export class LojistasService {
       if(!hasEstado) {
         throw new BadRequestException("Estado não encontrado!");
       }
-      data.estados = { connect: { est_id : updateLojistaDto.est_id } }
     }
 
 
     if(updateLojistaDto.hasOwnProperty('cid_id')) {
-      const hasCidade = await this.prismaService.lojista.findFirst({
+      const hasCidade = await this.prismaService.cidade.findFirst({
         where: {
-          est_id: updateLojistaDto.est_id,
+          est_id: updateLojistaDto.est_id || oldLojista.estados.est_id,
           cid_id: updateLojistaDto.cid_id
         }
       })
+
       if(!hasCidade) {
         throw new BadRequestException("Cidade não encontrada!");
       }
-      data.cidades = { connect: { cid_id : updateLojistaDto.cid_id } }
     }
 
 
     if(updateLojistaDto.hasOwnProperty('bai_id')) {
-      const hasBairro = await this.prismaService.lojista.findFirst({
+      const hasBairro = await this.prismaService.bairro.findFirst({
         where: {
           bai_id: updateLojistaDto.bai_id,
           cid_id: updateLojistaDto.cid_id
@@ -321,11 +299,13 @@ export class LojistasService {
       if(!hasBairro) {
         throw new BadRequestException("Cidade não encontrada!");
       }
-      data.bairros = { connect: { bai_id : updateLojistaDto.bai_id } }
     }
 
     const lojista = await this.prismaService.lojista.update({
-      data,
+      data: {
+        ...updateLojistaDto,
+        lojst_img_perfil : "",
+      },
       where: { lojst_id: id }
     }) 
 
