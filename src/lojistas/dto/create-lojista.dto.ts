@@ -1,6 +1,5 @@
-import { IsDate, IsDateString, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { IsDate, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { LOJST_STATUS } from "../enums/lojst-status.enum";
-import { Exclude, Transform } from 'class-transformer';
 
 export class CreateLojistaDto {
     @IsString()

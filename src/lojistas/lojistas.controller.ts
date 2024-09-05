@@ -1,17 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
 import { LojistasService } from './lojistas.service';
 import { CreateLojistaDto } from './dto/create-lojista.dto';
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
+import { EnsureLojistaAuthenticateGuard } from 'src/guards/lojista-auth.guard';
+import { Request } from 'express';
 
 @Controller('lojistas')
 export class LojistasController {
   constructor(private readonly lojistasService: LojistasService) {}
+
+  @Post('login')
+  login(@Body() {login, senha }: { login: string, senha: string }){
+    return this.lojistasService.login(login,senha);
+  }
 
   @Post()
   create(@Body() createLojistaDto: CreateLojistaDto) {
     return this.lojistasService.create(createLojistaDto);
   }
 
+  @Get('me')
+  @UseGuards(EnsureLojistaAuthenticateGuard)
+  findMe(@Req() { lojst_id } : Request) {
+    return this.lojistasService.findMe(+lojst_id);
+  }
+
+  //filtrar umas infos se necessario
   @Get()
   findAll() {
     try {

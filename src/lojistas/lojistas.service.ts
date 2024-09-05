@@ -7,25 +7,78 @@ import { plainToClass } from 'class-transformer';
 import { ListLojistaDto } from './dto/list-lojista.dto';
 
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
+import { LojistaPayload } from './dto/lojista-payload.dto';
 
 @Injectable()
 export class LojistasService {
-
   constructor(
-    private prismaService: PrismaService
+    private prismaService: PrismaService,
+    private readonly jwtService: JwtService,
   ){}
 
+  async login(lojst_login: string, senha: string) {
+    const lojista = await this.prismaService.lojista.findUnique({
+      where: { lojst_login }
+    })
+
+    if(!lojista) throw new BadRequestException("Login ou senha inválido.");
+    const senhaMatch = bcrypt.compare(senha, lojista.lojst_senha_hash);
+
+    if(!senhaMatch) throw new BadRequestException("Login ou senha inválido.");
+
+    const paylod: LojistaPayload = {
+      sub: lojista.lojst_id,
+      login: lojista.lojst_login,
+      name: lojista.lojst_nome
+    }
+
+    const token = this.jwtService.sign(paylod);
+
+    await this.prismaService.lojista.update({
+      where: { lojst_id: lojista.lojst_id },
+      data: { lojst_web_token: token }
+    })
+
+    return {
+      token,
+      message: "Lojista logado com sucesso.",
+      statusCode: HttpStatus.OK
+    }
+  }
+
   async create(createLojistaDto: CreateLojistaDto) {
+    const { est_id, cid_id, bai_id, lojst_login } = createLojistaDto;
+
     const hasLojista = await this.prismaService.lojista.findFirst({
       where: {
         OR: [
           { lojst_email: createLojistaDto.lojst_email },
-          { lojst_telefone: createLojistaDto.lojst_telefone }
+          { lojst_telefone: createLojistaDto.lojst_telefone },
+          { lojst_cpf: createLojistaDto.lojst_cpf }
         ]
       }
     })
 
     if(hasLojista) throw new BadRequestException("Lojista já cadastrado"); 
+
+    
+
+    const [hasEstado, hasCidade, hasBairro, hasLogin] = await Promise.all([
+      this.prismaService.lojista.findFirst({ where: { lojst_login } }),
+      this.prismaService.estado.findUnique({ where: { est_id } }),
+      this.prismaService.cidade.findFirst({ where: { est_id, cid_id } }),
+      this.prismaService.bairro.findFirst({ where: { bai_id, cid_id } }),
+      
+    ]);
+
+    if (hasLogin) throw new BadRequestException("Login já cadastrado!");
+    
+    if (!hasEstado) throw new BadRequestException("Estado não encontrado!");
+    
+    if (!hasCidade) throw new BadRequestException("Cidade não encontrada!");
+
+    if (!hasBairro) throw new BadRequestException("Bairro não encontrado!");
 
     const data = {
       lojst_nome: createLojistaDto.lojst_nome,
@@ -63,6 +116,14 @@ export class LojistasService {
     return {
       ...plainToClass(ListLojistaDto, data),
       statusCode: HttpStatus.OK
+    }
+  }
+
+  async findMe(id: number){
+    const lojista = await this.ensureLojistaExists(id);
+    return {
+      lojista,
+      statusCode: HttpStatus.OK,
     }
   }
 
