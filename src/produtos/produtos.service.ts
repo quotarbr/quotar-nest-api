@@ -205,13 +205,22 @@ export class ProdutosService {
             prodt_id: true,
             vrnt_fotos: true,
             vrnt_preco: true,
-            vrnt_opcoes: true,
             tipos_precos: {
               select: {
                 tp_prec_id: true,
                 tp_prec_nome: true,
               },
             },
+            opcoes: {
+              select:{
+                opcao: {
+                  select: {
+                    opc_nome: true,
+                    opc_valores: true
+                  }
+                }
+              }
+            }
           },
         },
       },
