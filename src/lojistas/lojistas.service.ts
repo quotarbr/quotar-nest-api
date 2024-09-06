@@ -62,9 +62,7 @@ export class LojistasService {
 
     if(hasLojista) throw new BadRequestException("Lojista já cadastrado"); 
 
-    
-
-    const [hasEstado, hasCidade, hasBairro, hasLogin] = await Promise.all([
+    const [hasEstado, hasCidade, hasBairro, hasLogin] = await Promise.all([ 
       this.prismaService.lojista.findFirst({ where: { lojst_login } }),
       this.prismaService.estado.findUnique({ where: { est_id } }),
       this.prismaService.cidade.findFirst({ where: { est_id, cid_id } }),
@@ -73,11 +71,8 @@ export class LojistasService {
     ]);
 
     if (hasLogin) throw new BadRequestException("Login já cadastrado!");
-    
     if (!hasEstado) throw new BadRequestException("Estado não encontrado!");
-    
     if (!hasCidade) throw new BadRequestException("Cidade não encontrada!");
-
     if (!hasBairro) throw new BadRequestException("Bairro não encontrado!");
 
     const data = {
@@ -103,7 +98,6 @@ export class LojistasService {
       message: "Lojista cadastrado com sucesso",
       statusCode: HttpStatus.CREATED
     }
-
   }
 
   async findAll() {

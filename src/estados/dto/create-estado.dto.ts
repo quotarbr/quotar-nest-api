@@ -1,8 +1,12 @@
-import { IsNotEmpty, IsString, MaxLength, maxLength } from "class-validator";
+import { IsNotEmpty, IsString, Max, MaxLength, maxLength } from "class-validator";
 
 export class CreateEstadoDto {
     @IsString()
     @IsNotEmpty()
-    @MaxLength(2)
     est_nome: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(2)
+    est_sigla: string;
 }

@@ -13,7 +13,8 @@ export class EstadosService {
 
   async create(createEstadoDto: CreateEstadoDto) {
     const data: Prisma.EstadoUncheckedCreateInput ={
-      est_nome: createEstadoDto.est_nome
+      est_nome: createEstadoDto.est_nome,
+      est_sigla: createEstadoDto.est_sigla
     }
     return await this.prismaService.estado.create({data});
   }
