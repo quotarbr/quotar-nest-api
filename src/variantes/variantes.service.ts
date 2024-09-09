@@ -49,15 +49,28 @@ export class VariantesService {
 
   async update(id: number, updateVarianteDto: UpdateVarianteDto) {
     await this.ensureVarianteExist(id);
-    const variante =await this.prismaService.variante.update({
+    
+    const variante = await this.prismaService.variante.update({
       data: {
         vrnt_fotos:   JSON.stringify(updateVarianteDto.vrnt_fotos),
         vrnt_preco:   updateVarianteDto.vrnt_preco,
-        vrnt_opcoes:  JSON.stringify(updateVarianteDto.vrnt_opcoes),
+        // vrnt_opcoes:  JSON.stringify(updateVarianteDto.vrnt_opcoes),
         tp_prec_id:   updateVarianteDto.tp_prec_id
       },
       where: { vrnt_id: id}
     })
+
+    //seleciona as relacoes corretas
+    // this.prismaService.varianteOpcoes.findMany({
+    //   where: {
+    //     vrnt_id: id, 
+    //     opc_id:
+    //   }
+    // })
+
+    //atualiza as opcoes respectivas 
+
+
     return {
       variante,
       statusCode: HttpStatus.OK
