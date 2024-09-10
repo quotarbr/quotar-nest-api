@@ -3,12 +3,12 @@ import { CreateLojistaDto } from './dto/create-lojista.dto';
 
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { plainToClass } from 'class-transformer';
-import { ListLojistaDto } from './dto/list-lojista.dto';
 
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LojistaPayload } from './dto/lojista-payload.dto';
+import { FiltrarLojistaDto } from './dto/filtrar-lojista.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class LojistasService {
@@ -41,9 +41,9 @@ export class LojistasService {
     })
 
     return {
-      token,
       message: "Lojista logado com sucesso.",
-      statusCode: HttpStatus.OK
+      statusCode: HttpStatus.OK,
+      token,
     }
   }
 
@@ -62,7 +62,7 @@ export class LojistasService {
 
     if(hasLojista) throw new BadRequestException("Lojista já cadastrado"); 
 
-    const [hasEstado, hasCidade, hasBairro, hasLogin] = await Promise.all([ 
+    const [hasLogin, hasEstado, hasCidade, hasBairro] = await Promise.all([ 
       this.prismaService.lojista.findFirst({ where: { lojst_login } }),
       this.prismaService.estado.findUnique({ where: { est_id } }),
       this.prismaService.cidade.findFirst({ where: { est_id, cid_id } }),
@@ -100,29 +100,82 @@ export class LojistasService {
     }
   }
 
-  async findAll() {
-    const lojistas = await this.prismaService.lojista.findMany();
-    return lojistas.map(lojista => plainToClass(ListLojistaDto, lojista));
+  async findAll(params?: FiltrarLojistaDto) {
+    const whereClause: Prisma.LojistaWhereInput = {}
+
+    if(params?.string){
+      whereClause.OR = [  
+        { lojst_nome: { contains: params.string.trim()} },
+        { lojst_email: { contains: params.string.trim()} },
+        { lojst_id: +params.string || 0 }
+      ]
+    } 
+
+    if(params?.status){ whereClause.lojst_status = params.status; }
+
+    const pagina  = ( +params?.pagina || 1 );
+    const limite  = ( +params?.limite || 10 );
+    const skip    = ( pagina - 1 * limite );
+    const take    = ( limite );
+
+    const lojistas = await this.prismaService.lojista.findMany({
+      where: whereClause,
+      take: take,
+      skip: skip,
+      orderBy: { lojst_id: 'desc' },
+      select: {
+        lojst_id: true,
+        lojst_nome: true,
+        lojst_cpf: true,
+        lojst_img_perfil: true,
+        lojst_telefone: true,
+        lojst_email: true,
+        lojst_data_cadastro: true,
+        lojst_cep: true,
+        lojst_endereco: true,
+        lojst_status: true,
+        cidades: true,
+        estados: true,
+        bairros: true,
+        lojas: {
+          select:{
+            loj_id: true,
+            loj_nome:true,
+            loj_logo: true,
+            _count: true
+          }
+        }
+      }
+    });
+
+    const total_resultados = await this.prismaService.lojista.count({where: whereClause});
+    const total = await this.prismaService.lojista.count();
+
+    return {
+      statusCode: HttpStatus.OK,
+      paginas: Math.ceil( total / limite ),
+      pagina,
+      limite,
+      total,
+      total_resultados,
+      resultado: lojistas
+    }
   }
 
   async findOne(id: number) {
     const data = await this.ensureLojistaExists(id);
     return {
-      ...plainToClass(ListLojistaDto, data),
-      statusCode: HttpStatus.OK
+      statusCode: HttpStatus.OK,
+      resultado: data
     }
   }
 
   async findMe(id: number){
     const lojista = await this.ensureLojistaExists(id);
     return {
-      lojista,
+      resultado: lojista,
       statusCode: HttpStatus.OK,
     }
-  }
-
-  async findByLogin(login: string){
-    return await this.prismaService.lojista.findUnique({ where: { lojst_login: login } })
   }
 
   async update(id: number, updateLojistaDto: UpdateLojistaDto) {
@@ -172,7 +225,30 @@ export class LojistasService {
 
   private async ensureLojistaExists(id: number) {
     const lojista = await this.prismaService.lojista.findUnique({
-      where: {  lojst_id: id }
+      where: {  lojst_id: id },
+      select: {
+        lojst_id: true,
+        lojst_nome: true,
+        lojst_cpf: true,
+        lojst_img_perfil: true,
+        lojst_telefone: true,
+        lojst_email: true,
+        lojst_data_cadastro: true,
+        lojst_cep: true,
+        lojst_endereco: true,
+        lojst_status: true,
+        cidades: true,
+        estados: true,
+        bairros: true,
+        lojas: {
+          select:{
+            loj_id: true,
+            loj_nome:true,
+            loj_logo: true,
+            _count: true
+          }
+        },
+      }
     });
     if (!lojista) throw new NotFoundException('Lojista não encontrado.');
     return lojista;

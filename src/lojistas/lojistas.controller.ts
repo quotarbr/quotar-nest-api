@@ -25,7 +25,6 @@ export class LojistasController {
     return this.lojistasService.findMe(+lojst_id);
   }
 
-  //filtrar umas infos se necessario
   @Get()
   findAll() {
     try {

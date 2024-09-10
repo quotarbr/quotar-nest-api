@@ -29,8 +29,8 @@ model agente_permissao {
   age_id     Int
   perm_id    Int
 
-  agente     agente           @relation(fields: [age_id], references: [age_id], name: "AgenteToPermissoes")
-  permissao  agentes_permissoes        @relation(fields: [perm_id], references: [perm_id], name: "AgenteToPermissoes")
+  agente     agente                @relation(fields: [age_id], references: [age_id], name: "AgenteToPermissoes")
+  permissao  agentes_permissoes    @relation(fields: [perm_id], references: [perm_id], name: "AgenteToPermissoes")
 
   @@id([age_id, perm_id])
 }
