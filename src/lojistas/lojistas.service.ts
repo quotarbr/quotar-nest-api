@@ -96,7 +96,7 @@ export class LojistasService {
     return {
       id: lojista.lojst_id,
       message: "Lojista cadastrado com sucesso",
-      statusCode: HttpStatus.CREATED
+      statusCode: HttpStatus.OK
     }
   }
 
@@ -148,8 +148,7 @@ export class LojistasService {
       }
     });
 
-    const total_resultados = await this.prismaService.lojista.count({where: whereClause});
-    const total = await this.prismaService.lojista.count();
+    const total = await this.prismaService.lojista.count({where: whereClause});
 
     return {
       statusCode: HttpStatus.OK,
@@ -157,8 +156,8 @@ export class LojistasService {
       pagina,
       limite,
       total,
-      total_resultados,
-      resultado: lojistas
+      total_resultados: lojistas.length,
+      resultados: lojistas
     }
   }
 
@@ -179,36 +178,66 @@ export class LojistasService {
   }
 
   async update(id: number, updateLojistaDto: UpdateLojistaDto) {
-    await this.ensureLojistaExists(id);
+    const oldLojista = await this.ensureLojistaExists(id);
+    const data: Prisma.LojistaUpdateInput = {}
 
-    const data = {
-      lojst_nome: updateLojistaDto.lojst_nome,
-      lojst_cpf: updateLojistaDto.lojst_cpf,
-      lojst_img_perfil: updateLojistaDto.lojst_img_perfil,
-      lojst_telefone: updateLojistaDto.lojst_telefone,
-      lojst_email: updateLojistaDto.lojst_email,
-      lojst_cep: updateLojistaDto.lojst_cep,
-      lojst_endereco: updateLojistaDto.lojst_endereco,
-      lojst_login: updateLojistaDto.lojst_login,
-      lojst_senha_hash: await bcrypt.hash(updateLojistaDto.lojst_senha, 10),
-      lojst_token_inspiracao: updateLojistaDto.lojst_token_inspiracao,
-      lojst_token_recuperacao: updateLojistaDto.lojst_token_recuperacao,
-      cidades: { connect: { cid_id: updateLojistaDto.cid_id}},
-      bairros: { connect: { bai_id: updateLojistaDto.bai_id}},
-      estados: { connect: { est_id: updateLojistaDto.est_id}},
-      lojst_loja_parceira: updateLojistaDto.lojst_loja_parceira,
+    if(updateLojistaDto.hasOwnProperty('lojst_cpf')){
+      const hasCpf = await this.prismaService.lojista.findFirst({
+        where: { lojst_cpf: updateLojistaDto.lojst_cpf, lojst_id: {not: oldLojista.lojst_id} }
+      })
+      if(hasCpf) throw new BadRequestException("Cpf já cadastrado!");
+    }
+    this.validaUpdateInput(id, updateLojistaDto, 'lojst_cpf', 'Cpf já cadastrado!');
+    this.validaUpdateInput(id, updateLojistaDto, 'lojst_telefone', 'Telefone já cadastrado!');
+    this.validaUpdateInput(id, updateLojistaDto, 'lojst_email', 'E-mail já cadastrado!');
+    this.validaUpdateInput(id, updateLojistaDto, 'lojst_login', 'Login já cadastrado!');
+
+    if(updateLojistaDto.hasOwnProperty('est_id')) {
+      const hasEstado = await this.prismaService.estado.findFirst({ where: { est_id: updateLojistaDto.est_id } })
+      if(!hasEstado) throw new BadRequestException("Estado não encontrado!");
+    }
+
+    if(updateLojistaDto.hasOwnProperty('cid_id')) {
+      const hasCidade = await this.prismaService.cidade.findFirst({
+        where: {
+          est_id: updateLojistaDto.est_id || oldLojista.estados.est_id,
+          cid_id: updateLojistaDto.cid_id
+        }
+      })
+
+      if(!hasCidade) throw new BadRequestException("Cidade não encontrada!");
+    }
+
+    if(updateLojistaDto.hasOwnProperty('bai_id')) {
+      const hasBairro = await this.prismaService.bairro.findFirst({
+        where: {
+          bai_id: updateLojistaDto.bai_id,
+          cid_id: updateLojistaDto.cid_id
+        }
+      })
+      if(!hasBairro) throw new BadRequestException("Cidade não encontrada!");
     }
     
     const lojista = await this.prismaService.lojista.update({
-      data,
+      data: {...updateLojistaDto}, 
       where: { lojst_id: id }
     }) 
 
     return {
-      lojista,
+      id: lojista.lojst_id,
       message: "Lojista atualizado com sucesso.",
       statusCode: HttpStatus.OK
     }
+  }
+
+  async validaUpdateInput(id: number, updateLojistaDto: UpdateLojistaDto, property?: string, msgBadRequest?: string){
+    if(updateLojistaDto.hasOwnProperty(property)){
+      const hasProperty = await this.prismaService.lojista.findFirst({
+        where: { [property]: updateLojistaDto[property], lojst_id: {not: id} }
+      })
+      if(hasProperty) throw new BadRequestException(msgBadRequest);
+    }
+    return 
   }
 
   async remove(id: number) {
