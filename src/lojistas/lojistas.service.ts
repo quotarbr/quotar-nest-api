@@ -156,7 +156,7 @@ export class LojistasService {
       pagina,
       limite,
       total,
-      tamanho_pagina: lojistas.length,
+      total_resultados: lojistas.length,
       resultados: lojistas
     }
   }
