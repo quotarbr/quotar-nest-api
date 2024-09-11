@@ -6,5 +6,6 @@ export class CreateCidadeDto {
   cid_nome: string;
 
   @IsNumber()
+  @IsNotEmpty()
   est_id: number;
 }

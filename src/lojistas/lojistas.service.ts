@@ -60,7 +60,7 @@ export class LojistasService {
       }
     })
 
-    if(hasLojista) throw new BadRequestException("Lojista já cadastrado"); 
+    if(hasLojista) throw new BadRequestException("Lojista já cadastrado."); 
 
     const [hasLogin, hasEstado, hasCidade, hasBairro] = await Promise.all([ 
       this.prismaService.lojista.findFirst({ where: { lojst_login } }),
@@ -209,7 +209,7 @@ export class LojistasService {
           cid_id: updateLojistaDto.cid_id
         }
       })
-      if(!hasBairro) throw new BadRequestException("Cidade não encontrada!");
+      if(!hasBairro) throw new BadRequestException("Bairro não encontrada!");
     }
     
     const lojista = await this.prismaService.lojista.update({
@@ -242,7 +242,7 @@ export class LojistasService {
     return {
       id: lojista.lojst_id,
       message: "Lojista deletado com sucesso.",
-      statusCode: HttpStatus.NO_CONTENT
+      statusCode: HttpStatus.OK
     }
   }
 

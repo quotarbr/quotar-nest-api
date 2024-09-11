@@ -74,7 +74,7 @@ export class EstadosService {
       pagina,
       limite,
       total,
-      tamanaho_pagina: estados.length,
+      total_resultados: estados.length,
       resultados: estados
     }
   }
@@ -88,16 +88,32 @@ export class EstadosService {
   }
 
   async update(id: number, updateEstadoDto: UpdateEstadoDto) {
-    return await this.prismaService.estado.update({
-      data: updateEstadoDto,
-      where: {est_id: id}
+    await this.ensureEstadoExist(id);
+
+    this.validaUpdateInput(id, updateEstadoDto, 'est_nome', 'Nome de estado já existe!');
+    this.validaUpdateInput(id, updateEstadoDto, 'est_sigla', 'Sigla de estado já existe!');
+
+    const estado = await this.prismaService.estado.update({
+      where: {est_id: id},
+      data: {...updateEstadoDto}
     })
+
+    return {
+      id: estado.est_id,
+      message: 'Estado atualizado com sucesso!',
+      statusCode: HttpStatus.OK
+    }
   }
 
   async remove(id: number) {
-    return await this.prismaService.estado.delete({
-      where: { est_id: id }
-    })
+    const estado = await this.ensureEstadoExist(id);
+    await this.prismaService.estado.delete({ where: { est_id: id } })
+
+    return {
+      id: estado.est_id,
+      message: 'Estado removido com sucesso!',
+      statusCode: HttpStatus.OK
+    }
   }
 
   async ensureEstadoExist(id:number){
@@ -117,6 +133,15 @@ export class EstadosService {
     })
     if(!estado) throw new NotFoundException('Estado não encontrado.');
     return estado;
-  
+  }
+
+  async validaUpdateInput(id: number, updateEstadoDto: UpdateEstadoDto, property?: string, msgBadRequest?: string){
+    if(updateEstadoDto.hasOwnProperty(property)){
+      const hasProperty = await this.prismaService.lojista.findFirst({
+        where: { [property]: updateEstadoDto[property], est_id: {not: id} }
+      })
+      if(hasProperty) throw new BadRequestException(msgBadRequest);
+    }
+    return 
   }
 }
