@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, UseGuards, Req, Query } from '@nestjs/common';
 import { LojistasService } from './lojistas.service';
 import { CreateLojistaDto } from './dto/create-lojista.dto';
 import { UpdateLojistaDto } from './dto/update-lojista.dto';
 import { EnsureLojistaAuthenticateGuard } from 'src/guards/lojista-auth.guard';
 import { Request } from 'express';
+import { FiltrarLojistaDto } from './dto/filtrar-lojista.dto';
 
 @Controller('lojistas')
 export class LojistasController {
@@ -26,9 +27,9 @@ export class LojistasController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query() params: FiltrarLojistaDto) {
     try {
-      return this.lojistasService.findAll();
+      return this.lojistasService.findAll(params);
     }catch (error) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }

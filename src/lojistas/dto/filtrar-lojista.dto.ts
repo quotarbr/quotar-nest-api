@@ -15,8 +15,4 @@ export class FiltrarLojistaDto {
 
     @IsOptional()
     limite?: string;
-
-    @IsOptional()
-    @IsString()
-    lojista?: string;
 }

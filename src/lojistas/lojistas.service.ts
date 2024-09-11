@@ -95,7 +95,7 @@ export class LojistasService {
     
     return {
       id: lojista.lojst_id,
-      message: "Lojista cadastrado com sucesso",
+      message: "Lojista cadastrado com sucesso!",
       statusCode: HttpStatus.OK
     }
   }
@@ -156,7 +156,7 @@ export class LojistasService {
       pagina,
       limite,
       total,
-      total_resultados: lojistas.length,
+      tamanho_pagina: lojistas.length,
       resultados: lojistas
     }
   }
@@ -172,8 +172,8 @@ export class LojistasService {
   async findMe(id: number){
     const lojista = await this.ensureLojistaExists(id);
     return {
-      resultado: lojista,
       statusCode: HttpStatus.OK,
+      resultado: lojista
     }
   }
 
@@ -181,12 +181,6 @@ export class LojistasService {
     const oldLojista = await this.ensureLojistaExists(id);
     const data: Prisma.LojistaUpdateInput = {}
 
-    if(updateLojistaDto.hasOwnProperty('lojst_cpf')){
-      const hasCpf = await this.prismaService.lojista.findFirst({
-        where: { lojst_cpf: updateLojistaDto.lojst_cpf, lojst_id: {not: oldLojista.lojst_id} }
-      })
-      if(hasCpf) throw new BadRequestException("Cpf já cadastrado!");
-    }
     this.validaUpdateInput(id, updateLojistaDto, 'lojst_cpf', 'Cpf já cadastrado!');
     this.validaUpdateInput(id, updateLojistaDto, 'lojst_telefone', 'Telefone já cadastrado!');
     this.validaUpdateInput(id, updateLojistaDto, 'lojst_email', 'E-mail já cadastrado!');
