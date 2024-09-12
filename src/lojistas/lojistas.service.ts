@@ -120,8 +120,8 @@ export class LojistasService {
 
     const lojistas = await this.prismaService.lojista.findMany({
       where: whereClause,
-      take: take,
-      skip: skip,
+      take,
+      skip,
       orderBy: { lojst_id: 'desc' },
       select: {
         lojst_id: true,

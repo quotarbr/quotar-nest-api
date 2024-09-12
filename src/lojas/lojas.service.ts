@@ -84,6 +84,9 @@ export class LojasService {
     
     const lojas = await this.prismaService.loja.findMany({
       where: whereClause,
+      skip,
+      take,
+      orderBy: { loj_id: 'desc' },
       select: {
         loj_id: true,
         loj_nome: true,
@@ -123,43 +126,103 @@ export class LojasService {
   }
 
   async findOne(id: number) {
-    const loja = await this.prismaService.loja.findUnique({
-      where: { loj_id: id }
-    })
-    if(!loja) throw new BadRequestException("Loja não encontrada.")
-
+    const data = await this.ensureLojaExists(id);
     return {
-      loja,
-      statusCode: HttpStatus.OK
+      statusCode: HttpStatus.OK,
+      resultado: data
     } 
   }
 
   async update(id: number, updateLojaDto: UpdateLojaDto) {
-    const loja = await this.prismaService.loja.findUnique({
+    const oldLoja = await this.ensureLojaExists(id);
+    const data: Prisma.LojaUpdateInput = {}
+
+    this.validaUpdateInput(id, updateLojaDto, 'loj_nome', 'Nome já cadastrado!');
+    this.validaUpdateInput(id, updateLojaDto, 'loj_cnpj', 'Cnpj já cadastrado!');
+    this.validaUpdateInput(id, updateLojaDto, 'loj_email', 'E-mail já cadastrado!');
+
+    if(updateLojaDto.hasOwnProperty('est_id')) {
+      const hasEstado = await this.prismaService.estado.findFirst({ where: { est_id: updateLojaDto.est_id } })
+      if(!hasEstado) throw new BadRequestException("Estado não encontrado!");
+    }
+
+    if(updateLojaDto.hasOwnProperty('cid_id')) {
+      const hasCidade = await this.prismaService.cidade.findFirst({
+        where: {
+          est_id: updateLojaDto.est_id || oldLoja.estados.est_id,
+          cid_id: updateLojaDto.cid_id
+        }
+      })
+
+      if(!hasCidade) throw new BadRequestException("Cidade não encontrada!");
+    }
+
+    if(updateLojaDto.hasOwnProperty('bai_id')) {
+      const hasBairro = await this.prismaService.bairro.findFirst({
+        where: {
+          bai_id: updateLojaDto.bai_id,
+          cid_id: updateLojaDto.cid_id
+        }
+      })
+      if(!hasBairro) throw new BadRequestException("Bairro não encontrada!");
+    }
+
+    const loja = await this.prismaService.loja.update({
+      data: {...updateLojaDto},
       where: { loj_id: id }
     })
 
-    if(!loja) throw new NotFoundException("Loja não encontrada.")
-
-    return await this.prismaService.loja.update({
-      data: updateLojaDto,
-      where: { loj_id: id }
-    })
+    return {
+      id: loja.loj_id,
+      message: 'Loja atualizada com sucesso!',
+      statusCode: HttpStatus.OK
+    }
   }
 
   async remove(id: number) {
-    const loja = await this.prismaService.loja.findUnique({
+    const loja = await this.ensureLojaExists(id);
+    await this.prismaService.loja.delete({
       where: { loj_id: id }
     })
-
-    if(!loja) throw new NotFoundException("Loja não encontrada.")
-
-    return await this.prismaService.loja.delete({
-      where: { loj_id: id }
-    })
+    return {
+      id: loja.loj_id,
+      message: "Loja deletada com sucesso.",
+      statusCode: HttpStatus.OK
+    }
   }
 
   private async ensureLojaExists(id:number){
+    const loja = await this.prismaService.loja.findUnique({
+      where: {loj_id: id},
+      select: {
+        loj_id: true,
+        loj_nome: true,
+        loj_logo: true,
+        loj_slogan: true,
+        loj_telefone: true,
+        loj_email: true,
+        loj_text_sobre: true,
+        loj_cep: true,
+        loj_endereco: true,
+        loj_data_cadastro: true,
+        estados:  { select: { est_id:true, est_nome: true }},
+        cidades:  { select: { cid_nome: true }},
+        bairros:  { select: { bai_nome: true }},
+        lojistas: { select: { lojst_id: true, lojst_nome: true}}
+      }
+    }) 
 
+    if(!loja) throw new NotFoundException('Loja não encontrada.');
+    return loja;
+
+  }
+  private async validaUpdateInput(id: number, updateLojaDto: UpdateLojaDto, property?: string, msgBadRequest?: string){
+    if(updateLojaDto.hasOwnProperty(property)){
+      const hasProperty = await this.prismaService.lojista.findFirst({
+        where: { [property]: updateLojaDto[property], lojst_id: {not: id} }
+      })
+      if(hasProperty) throw new BadRequestException(msgBadRequest);
+    }
+    return 
   }
 }
