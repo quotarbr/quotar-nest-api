@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, NotFoundException, InternalServerErrorException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, NotFoundException, InternalServerErrorException, HttpStatus, Query } from '@nestjs/common';
 import { LojasService } from './lojas.service';
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
+import { FiltrarLojasDto } from './dto/filtrar-loja.dto';
 
 @Controller('lojas')
 export class LojasController {
@@ -17,9 +18,9 @@ export class LojasController {
   }
 
   @Get()
-  findAll() {
+  findAll(@Query() params: FiltrarLojasDto) {
     try {
-      return this.lojasService.findAll();
+      return this.lojasService.findAll(params);
     } catch(e) {
       throw new InternalServerErrorException( e.message || "Ocorreu um erro ao buscar lojas.");
     }
