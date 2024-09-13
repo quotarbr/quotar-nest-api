@@ -26,6 +26,8 @@ export class LojistasController {
     return this.lojistasService.findMe(+lojst_id);
   }
 
+  //minhasLojas com guard
+
   @Get()
   findAll(@Query() params: FiltrarLojistaDto) {
     try {

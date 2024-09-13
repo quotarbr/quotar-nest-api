@@ -2,11 +2,8 @@ import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '
 import { CreateLojaDto } from './dto/create-loja.dto';
 import { UpdateLojaDto } from './dto/update-loja.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { STATUS_CODES } from 'http';
 import { Prisma } from '@prisma/client';
-import { connect } from 'http2';
 import { FiltrarLojasDto } from './dto/filtrar-loja.dto';
-import { Estado } from 'src/estados/entities/estado.entity';
 
 @Injectable()
 export class LojasService {
