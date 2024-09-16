@@ -1,11 +1,18 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class FiltrarProdutoTipoDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   prod_id : string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   tp_id   : string;
+
+  @IsOptional()
+  pagina?: String;
+
+  @IsOptional()
+  limite?: string;
+
 }

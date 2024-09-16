@@ -18,18 +18,18 @@ export class ProdutosTiposController {
     return this.produtosTiposService.findAll(params);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.produtosTiposService.findOne(+id);
+  @Get(':prodId/:tpId')
+  findOne(@Param('prodId') prodId: string, @Param('tpId') tpId: string) {
+    return this.produtosTiposService.findOne(+prodId, +tpId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProdutosTipoDto: UpdateProdutosTipoDto) {
-    return this.produtosTiposService.update(+id, updateProdutosTipoDto);
+  @Patch(':prodId/:tpId')
+  update(@Param('prodId') prodId: string, @Param('tpId') tpId: string, @Body() updateProdutosTipoDto: UpdateProdutosTipoDto) {
+    return this.produtosTiposService.update(+prodId, +tpId, updateProdutosTipoDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.produtosTiposService.remove(+id);
+  @Delete(':prodId/:tpId')
+  remove(@Param('prodId') prodId: string,  @Param('tpId') tpId: string ) {
+    return this.produtosTiposService.remove(+prodId, +tpId);
   }
 }
