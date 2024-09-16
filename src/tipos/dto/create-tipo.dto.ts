@@ -1,4 +1,7 @@
+import { IsNotEmpty, IsNumber, IsString } from "class-validator"
+
 export class CreateTipoDto {
-    tp_ip: number;
+    @IsString()
+    @IsNotEmpty()
     tp_nome: string;
 }
