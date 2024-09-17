@@ -109,9 +109,8 @@ export class TiposService {
   }
 
   async update(id: number, updateTipoDto: UpdateTipoDto) {
-    //vou receber lista de categorias 
-      // atualizar com as não existentes
-      // não veio a categira 
+    const {tp_nome, categorias} = updateTipoDto;
+
     const oldTipo = await this.ensureTipoExists(id);
 
     if(updateTipoDto.hasOwnProperty('tp_nome')){
@@ -121,17 +120,42 @@ export class TiposService {
       if(hasNome) throw new BadRequestException('Nome já cadastrado!');
     }
 
-    // const tipo = await this.prismaService.tipo.update({
-    //   data: {...updateTipoDto},
+    const tipo = await this.prismaService.tipo.update({
+      data: { tp_nome },
+      where: {
+        tp_id: oldTipo.tp_id
+      }
+    })
+
+    //pegar as categorias, paraca cada cat, dar update 
+    let tipoCategoriaList: Prisma.TipoCategoriaCreateManyInput[] = categorias.map((cat_id) => {
+      return {
+        tp_id: tipo.tp_id,
+        cat_id: cat_id
+      }
+    });
+    //atualizar a associacao de cada uma
+    // await this.prismaService.tipoCategoria.updateMany({
+    //   data: tipoCategoriaList,
     //   where: {
-    //     tp_id: oldTipo.tp_id
+
     //   }
     // })
-    // return {
-    //   id: tipo.tp_id,
-    //   message: "Tipo atualizado com sucesso!",
-    //   statusCode: HttpStatus.OK
-    // }
+
+
+
+
+
+
+
+
+
+
+    return {
+      id: tipo.tp_id,
+      message: "Tipo atualizado com sucesso!",
+      statusCode: HttpStatus.OK
+    }
     
   }
 
