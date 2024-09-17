@@ -2,15 +2,17 @@ import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '
 import { CreateTipoDto } from './dto/create-tipo.dto';
 import { UpdateTipoDto } from './dto/update-tipo.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Categoria, Prisma, TipoCategoria } from '@prisma/client';
 import { FiltrarTipoDto } from './dto/filtrar-tipo.dto';
+import { connect } from 'http2';
 
 @Injectable()
 export class TiposService {
   constructor(private prismaService: PrismaService){}
 
   async create(createTipoDto: CreateTipoDto) {
-    const { tp_nome } = createTipoDto;
+    const { tp_nome, categorias } = createTipoDto;
+    
     const hasTipo = await this.prismaService.tipo.findFirst({ where: { tp_nome: createTipoDto.tp_nome } })
     if(hasTipo) throw new BadRequestException("Tipo já cadastrado.");
 
@@ -18,8 +20,33 @@ export class TiposService {
       tp_nome: tp_nome
     }
 
-    const tipo = await this.prismaService.tipo.create({data})
+    const tipo = await this.prismaService.tipo.create({data});
 
+    const hasCategoria = await Promise.all(
+      categorias.map( (cat_id) => {
+        this.prismaService.categoria.findFirst({
+          where:{
+            cat_id
+          }
+        })
+      })
+    );
+
+    hasCategoria.forEach( (cat, i) => {
+      if(cat == null){
+        throw new BadRequestException(`Categoria ${categorias[i]} não encontrada`)
+      }
+    })
+
+    let tipoCategoriaList: Prisma.TipoCategoriaCreateManyInput[] = categorias.map((cat_id) => {
+      return {
+        tp_id: tipo.tp_id,
+        cat_id: cat_id
+      }
+    });
+
+    await this.prismaService.tipoCategoria.createMany({data: tipoCategoriaList});
+    
     return {
       id: tipo.tp_id,
       message: "Tipo cadastrado com sucesso.",
@@ -82,6 +109,9 @@ export class TiposService {
   }
 
   async update(id: number, updateTipoDto: UpdateTipoDto) {
+    //vou receber lista de categorias 
+      // atualizar com as não existentes
+      // não veio a categira 
     const oldTipo = await this.ensureTipoExists(id);
 
     if(updateTipoDto.hasOwnProperty('tp_nome')){
@@ -91,17 +121,17 @@ export class TiposService {
       if(hasNome) throw new BadRequestException('Nome já cadastrado!');
     }
 
-    const tipo = await this.prismaService.tipo.update({
-      data: {...updateTipoDto},
-      where: {
-        tp_id: oldTipo.tp_id
-      }
-    })
-    return {
-      id: tipo.tp_id,
-      message: "Tipo atualizado com sucesso!",
-      statusCode: HttpStatus.OK
-    }
+    // const tipo = await this.prismaService.tipo.update({
+    //   data: {...updateTipoDto},
+    //   where: {
+    //     tp_id: oldTipo.tp_id
+    //   }
+    // })
+    // return {
+    //   id: tipo.tp_id,
+    //   message: "Tipo atualizado com sucesso!",
+    //   statusCode: HttpStatus.OK
+    // }
     
   }
 
