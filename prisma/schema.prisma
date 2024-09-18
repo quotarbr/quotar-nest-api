@@ -257,14 +257,6 @@ model Tipo {
   @@map("tipos")
 }
 
-model Categoria {
-  cat_id   Int             @id @default(autoincrement())
-  cat_nome String          @db.VarChar(150)
-  tipos    TipoCategoria[] 
-
-  @@map("categorias")
-}
-
 model TipoCategoria {
   tp_id   Int
   cat_id  Int
@@ -274,6 +266,14 @@ model TipoCategoria {
 
   @@id([tp_id, cat_id])
   @@map("tipo_categorias")
+}
+
+model Categoria {
+  cat_id   Int             @id @default(autoincrement())
+  cat_nome String          @db.VarChar(150)
+  tipos    TipoCategoria[] 
+
+  @@map("categorias")
 }
 
 model Tipos_preco {

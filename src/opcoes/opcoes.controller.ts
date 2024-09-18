@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { OpcoesService } from './opcoes.service';
 import { CreateOpcaoDto } from './dto/create-opcao.dto';
 import { UpdateOpcaoDto } from './dto/update-opcao.dto';
+import { FiltrarOpcaoDto } from './dto/filtrar-opcao.dto';
 
 @Controller('opcoes')
 export class OpcoesController {
@@ -14,9 +15,9 @@ constructor(private opcaoService: OpcoesService) {}
   }
 
   @Get()
-  findAll() {
+  findAll(@Query() params: FiltrarOpcaoDto) {
     try {
-      return this.opcaoService.findAll();
+      return this.opcaoService.findAll(params);
     }catch (error) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
