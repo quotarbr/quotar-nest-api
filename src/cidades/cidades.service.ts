@@ -46,7 +46,7 @@ export class CidadesService {
 
     const pagina =  (+params.pagina || 1);
     const limite = (+params.limite || 10);
-    const skip = (( pagina - 1 ) * limite); 
+    const skip = ( pagina - 1 ) * limite; 
     const take = limite
 
     const cidades = await this.prismaService.cidade.findMany({
@@ -94,7 +94,7 @@ export class CidadesService {
   }
 
   async update(id: number, updateCidadeDto: UpdateCidadeDto) {
-    const oldCidade = this.ensureCidadeExists(id);
+    this.ensureCidadeExists(id);
 
     if(updateCidadeDto.hasOwnProperty('cid_nome')){
       const hasCidade = await this.prismaService.cidade.findFirst({ where: { cid_nome: updateCidadeDto.cid_nome, cid_id: {not: id} }})

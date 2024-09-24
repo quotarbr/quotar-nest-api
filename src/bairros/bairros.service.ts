@@ -53,6 +53,9 @@ export class BairrosService {
 
     const bairros = await this.prismaService.bairro.findMany({
       where: whereClause,
+      take,
+      skip,
+      orderBy: {bai_nome : 'asc'},
       select: {
         bai_id: true,
         bai_nome: true,
@@ -74,8 +77,8 @@ export class BairrosService {
     const total = await this.prismaService.bairro.count({ where: whereClause });
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.ceil(total / limite),
       pagina,
+      total_paginas: Math.floor(total / limite),
       limite,
       total,
       total_resultados: bairros.length,

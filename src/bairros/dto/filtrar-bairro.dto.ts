@@ -2,7 +2,7 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class FiltrarBairroDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   string: string;
 
   @IsOptional()
