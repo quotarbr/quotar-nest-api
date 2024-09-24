@@ -53,7 +53,7 @@ export class CidadesService {
       where: whereClause,
       take: take,
       skip: skip, 
-      orderBy: { cid_id: 'desc'},
+      orderBy: { cid_nome: 'asc'},
       select: {
         cid_id: true,
         cid_nome: true,
@@ -75,11 +75,11 @@ export class CidadesService {
 
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.ceil( total / limite),
       pagina,
+      total_paginas: Math.floor( total / limite),
       limite,
       total: total,
-      total_pagina: cidades.length,
+      total_resultados: cidades.length,
       resultados: cidades
     }
   }
