@@ -47,14 +47,14 @@ export class EstadosService {
     }
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
-    const skip    = ( pagina - 1 * limite );
-    const take    = ( limite );
+    const skip    = ( pagina - 1 ) * limite;
+    const take    = limite;
     
     const estados = await this.prismaService.estado.findMany({
       where: whereClause,
-      take: take,
-      skip: skip,
-      orderBy: { est_id: 'desc'},
+      take,
+      skip,
+      orderBy: { est_nome: 'asc'},
       select:{
         est_id: true,
         est_nome: true,
@@ -72,6 +72,7 @@ export class EstadosService {
     return {
       statusCode: HttpStatus.OK,
       pagina,
+      total_paginas: Math.floor(total / limite),
       limite,
       total,
       total_resultados: estados.length,
@@ -88,10 +89,11 @@ export class EstadosService {
   }
 
   async update(id: number, updateEstadoDto: UpdateEstadoDto) {
+    
     await this.ensureEstadoExist(id);
 
-    this.validaUpdateInput(id, updateEstadoDto, 'est_nome', 'Nome de estado já existe!');
-    this.validaUpdateInput(id, updateEstadoDto, 'est_sigla', 'Sigla de estado já existe!');
+    await this.validaUpdateInput(id, updateEstadoDto, 'est_nome', 'Nome de estado já existe!');
+    await this.validaUpdateInput(id, updateEstadoDto, 'est_sigla', 'Sigla de estado já existe!');
 
     const estado = await this.prismaService.estado.update({
       where: {est_id: id},
@@ -137,11 +139,10 @@ export class EstadosService {
 
   async validaUpdateInput(id: number, updateEstadoDto: UpdateEstadoDto, property?: string, msgBadRequest?: string){
     if(updateEstadoDto.hasOwnProperty(property)){
-      const hasProperty = await this.prismaService.lojista.findFirst({
+      const hasProperty = await this.prismaService.estado.findFirst({
         where: { [property]: updateEstadoDto[property], est_id: {not: id} }
       })
       if(hasProperty) throw new BadRequestException(msgBadRequest);
     }
-    return 
   }
 }

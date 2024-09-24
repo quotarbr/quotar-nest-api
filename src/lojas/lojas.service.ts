@@ -76,8 +76,8 @@ export class LojasService {
 
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
-    const skip    = ( pagina - 1 * limite );
-    const take    = ( limite )
+    const skip    = ( pagina - 1 ) * limite ;
+    const take    = limite
     
     const lojas = await this.prismaService.loja.findMany({
       where: whereClause,

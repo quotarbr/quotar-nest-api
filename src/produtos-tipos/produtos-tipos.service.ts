@@ -45,8 +45,8 @@ export class ProdutosTiposService {
 
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
-    const skip    = ( pagina - 1 * limite );
-    const take    = ( limite );
+    const skip    = ( pagina - 1 ) * limite ;
+    const take    = limite;
 
     const produtosTipos = await this.prismaService.produtoTipo.findMany({
       where: whereClause,

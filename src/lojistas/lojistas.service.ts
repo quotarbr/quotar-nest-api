@@ -115,8 +115,8 @@ export class LojistasService {
 
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
-    const skip    = ( pagina - 1 * limite );
-    const take    = ( limite );
+    const skip    = ( pagina - 1 ) * limite ;
+    const take    = limite;
 
     const lojistas = await this.prismaService.lojista.findMany({
       where: whereClause,

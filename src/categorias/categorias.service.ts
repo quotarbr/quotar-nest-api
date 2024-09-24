@@ -40,8 +40,8 @@ export class CategoriasService {
     
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
-    const skip    = ( pagina - 1 * limite );
-    const take    = ( limite );
+    const skip    = ( pagina - 1 ) * limite ;
+    const take    = limite;
 
     const categorias = await this.prismaService.categoria.findMany({
       where: whereClause,

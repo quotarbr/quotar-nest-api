@@ -46,7 +46,7 @@ export class CidadesService {
 
     const pagina =  (+params.pagina || 1);
     const limite = (+params.limite || 10);
-    const skip = (pagina - 1 * limite); 
+    const skip = (( pagina - 1 ) * limite); 
     const take = limite
 
     const cidades = await this.prismaService.cidade.findMany({

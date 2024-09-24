@@ -59,8 +59,8 @@ export class OpcoesService {
 
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
-    const skip    = ( pagina - 1 * limite );
-    const take    = ( limite );
+    const skip    = ( pagina - 1 ) * limite ;
+    const take    = limite;
 
     const opcoes = await this.prismaService.opcao.findMany({
       where: whereClause,
