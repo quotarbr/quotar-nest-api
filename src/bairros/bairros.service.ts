@@ -13,7 +13,7 @@ export class BairrosService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createBairroDto: CreateBairroDto) {
-    const hasBairro = this.prismaService.bairro.findFirst({
+    const hasBairro = await this.prismaService.bairro.findFirst({
       where: { bai_nome: createBairroDto.bai_nome },
     });
     if (hasBairro) throw new BadRequestException('Bairro já cadastrado.');
@@ -27,12 +27,12 @@ export class BairrosService {
       bai_nome: createBairroDto.bai_nome,
       cidades: { connect: { cid_id: createBairroDto.cid_id } },
     };
-    const cidade = await this.prismaService.bairro.create({ data });
+    const bairro = await this.prismaService.bairro.create({ data });
 
     return {
-      id: cidade.bai_id,
-      message: 'Cidade cadastrada com sucesso!',
-      resultado: cidade,
+      id: bairro.bai_id,
+      message: 'Bairro cadastrada com sucesso!',
+      resultado: bairro,
     };
   }
 

@@ -18,13 +18,10 @@ export class LojistasService {
   ){}
 
   async login(lojst_login: string, senha: string) {
-    const lojista = await this.prismaService.lojista.findUnique({
-      where: { lojst_login }
-    })
-
+    const lojista = await this.prismaService.lojista.findUnique({ where: { lojst_login }});
     if(!lojista) throw new BadRequestException("Login ou senha inválido.");
+    
     const senhaMatch = bcrypt.compare(senha, lojista.lojst_senha_hash);
-
     if(!senhaMatch) throw new BadRequestException("Login ou senha inválido.");
 
     const paylod: LojistaPayload = {
@@ -48,18 +45,17 @@ export class LojistasService {
   }
 
   async create(createLojistaDto: CreateLojistaDto) {
-    const { est_id, cid_id, bai_id, lojst_login } = createLojistaDto;
-
+    const { est_id, cid_id, bai_id, lojst_login, lojst_loja_parceira } = createLojistaDto;
+    const lojaParceiraList = JSON.parse(lojst_loja_parceira);
+  
     const hasLojista = await this.prismaService.lojista.findFirst({
       where: {
         OR: [
           { lojst_email: createLojistaDto.lojst_email },
-          { lojst_telefone: createLojistaDto.lojst_telefone },
           { lojst_cpf: createLojistaDto.lojst_cpf }
         ]
       }
     })
-
     if(hasLojista) throw new BadRequestException("Lojista já cadastrado."); 
 
     const [hasLogin, hasEstado, hasCidade, hasBairro] = await Promise.all([ 
@@ -75,11 +71,16 @@ export class LojistasService {
     if (!hasCidade) throw new BadRequestException("Cidade não encontrada!");
     if (!hasBairro) throw new BadRequestException("Bairro não encontrado!");
 
+    for (const idLojista of lojaParceiraList){
+      const hasLojaParceira = await this.prismaService.lojista.findFirst({ where: { lojst_id: idLojista }})
+      if(!hasLojaParceira) throw new BadRequestException('Loja parceira não cadastrada.');
+    }
+
     const data = {
       lojst_nome: createLojistaDto.lojst_nome,
       lojst_cpf: createLojistaDto.lojst_cpf,
-      lojst_img_perfil: createLojistaDto.lojst_img_perfil,
-      lojst_telefone: createLojistaDto.lojst_telefone,
+      lojst_img_perfil: createLojistaDto.lojst_img_perfil, //todo tratar imagem
+      lojst_telefone: createLojistaDto.lojst_telefone, 
       lojst_email: createLojistaDto.lojst_email,
       lojst_cep: createLojistaDto.lojst_cep,
       lojst_endereco: createLojistaDto.lojst_endereco,
@@ -100,6 +101,7 @@ export class LojistasService {
     }
   }
 
+  
   async findAll(params?: FiltrarLojistaDto) {
     const whereClause: Prisma.LojistaWhereInput = {}
 
@@ -137,6 +139,7 @@ export class LojistasService {
         cidades: true,
         estados: true,
         bairros: true,
+        lojst_loja_parceira: true,
         lojas: {
           select:{
             loj_id: true,
@@ -152,8 +155,8 @@ export class LojistasService {
 
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.ceil( total / limite ),
       pagina,
+      total_paginas: Math.floor( total / limite ),
       limite,
       total,
       total_resultados: lojistas.length,
@@ -263,6 +266,7 @@ export class LojistasService {
         cidades: true,
         estados: true,
         bairros: true,
+        lojst_loja_parceira: true,
         lojas: {
           select:{
             loj_id: true,
@@ -270,7 +274,7 @@ export class LojistasService {
             loj_logo: true,
             _count: true
           }
-        },
+        }
       }
     });
     if (!lojista) throw new NotFoundException('Lojista não encontrado.');

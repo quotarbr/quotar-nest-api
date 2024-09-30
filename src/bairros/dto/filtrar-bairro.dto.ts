@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class FiltrarBairroDto {
-  @IsString()
+  @IsString({ message: 'O campo de busca deve ser uma string.' })
   @IsOptional()
   string: string;
 

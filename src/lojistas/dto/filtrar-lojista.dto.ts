@@ -1,13 +1,13 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsEnum, IsOptional, IsString } from "class-validator";
 import { LOJST_STATUS } from "../enums/lojst-status.enum";
 
 export class FiltrarLojistaDto {
     @IsOptional()
-    @IsString()
+    @IsString({ message: 'O campo de busca deve ser uma string.' })
     string?: string;
 
     @IsOptional()
-    @IsString()
+    @IsEnum(LOJST_STATUS, { message: 'O status fornecido é inválido.' })
     status?: LOJST_STATUS;
 
     @IsOptional()
