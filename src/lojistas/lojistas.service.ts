@@ -8,7 +8,9 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { LojistaPayload } from './dto/lojista-payload.dto';
 import { FiltrarLojistaDto } from './dto/filtrar-lojista.dto';
-import { Prisma } from '@prisma/client';
+import { Lojista, Prisma } from '@prisma/client';
+import { UpdateUsuarioDto } from 'src/usuarios/dto/update-usuario.dto';
+import { JsonValue } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class LojistasService {
@@ -172,22 +174,23 @@ export class LojistasService {
     }
   }
 
-  async findMe(id: number){
-    const lojista = await this.ensureLojistaExists(id);
-    return {
-      statusCode: HttpStatus.OK,
-      resultado: lojista
-    }
-  }
+  // async findMe(id: number){
+  //   const lojista = await this.ensureLojistaExists(id);
+  //   return {
+  //     statusCode: HttpStatus.OK,
+  //     resultado: lojista
+  //   }
+  // }
 
   async update(id: number, updateLojistaDto: UpdateLojistaDto) {
+    let { lojst_loja_parceira } = updateLojistaDto;
     const oldLojista = await this.ensureLojistaExists(id);
     const data: Prisma.LojistaUpdateInput = {}
 
-    this.validaUpdateInput(id, updateLojistaDto, 'lojst_cpf', 'Cpf já cadastrado!');
-    this.validaUpdateInput(id, updateLojistaDto, 'lojst_telefone', 'Telefone já cadastrado!');
-    this.validaUpdateInput(id, updateLojistaDto, 'lojst_email', 'E-mail já cadastrado!');
-    this.validaUpdateInput(id, updateLojistaDto, 'lojst_login', 'Login já cadastrado!');
+    await this.validaUpdateInput(id, updateLojistaDto, 'lojst_cpf', 'Cpf já cadastrado!');
+    await this.validaUpdateInput(id, updateLojistaDto, 'lojst_telefone', 'Telefone já cadastrado!');
+    await this.validaUpdateInput(id, updateLojistaDto, 'lojst_email', 'E-mail já cadastrado!');
+    await this.validaUpdateInput(id, updateLojistaDto, 'lojst_login', 'Login já cadastrado!');
 
     if(updateLojistaDto.hasOwnProperty('est_id')) {
       const hasEstado = await this.prismaService.estado.findFirst({ where: { est_id: updateLojistaDto.est_id } })
@@ -214,9 +217,21 @@ export class LojistasService {
       })
       if(!hasBairro) throw new BadRequestException("Bairro não encontrada!");
     }
+
+    if(updateLojistaDto.hasOwnProperty('lojst_loja_parceira')){
+      const lojaParceiraList = JSON.parse(lojst_loja_parceira);
+
+      for (const idLojista of lojaParceiraList){
+        const hasLojaParceira = await this.prismaService.loja.findFirst({ where: { loj_id: idLojista }})
+        if(!hasLojaParceira) throw new BadRequestException('Loja parceira não cadastrada.');
+      }
+      lojst_loja_parceira = await this.updateLojaParceira(oldLojista.lojst_loja_parceira, lojaParceiraList); 
+    }
     
     const lojista = await this.prismaService.lojista.update({
-      data: {...updateLojistaDto}, 
+      data: {
+        ...updateLojistaDto
+      }, 
       where: { lojst_id: id }
     }) 
 
@@ -225,6 +240,22 @@ export class LojistasService {
       message: "Lojista atualizado com sucesso.",
       statusCode: HttpStatus.OK
     }
+  }
+
+  async updateLojaParceira(currentLojaParceira: JsonValue, lojaParceiraUpdate ){
+    const currentLojaParceiraList = JSON.parse(currentLojaParceira as string);
+    const lojaParceiraUpdateList = lojaParceiraUpdate;
+    let updatedLojaParceiraList = [...currentLojaParceiraList];
+
+    const idsToAdd = lojaParceiraUpdateList.filter(id => !currentLojaParceiraList?.includes(id));
+    const idsToRemove = currentLojaParceiraList.filter( id => !lojaParceiraUpdateList?.includes(id));
+
+    if(idsToAdd.length > 0) {
+      updatedLojaParceiraList = currentLojaParceiraList.concat(idsToAdd);
+    }
+    if(idsToRemove.length > 0) updatedLojaParceiraList = updatedLojaParceiraList.filter(id => !idsToRemove.includes(id));
+  
+    return (JSON.stringify(updatedLojaParceiraList));
   }
 
   async validaUpdateInput(id: number, updateLojistaDto: UpdateLojistaDto, property?: string, msgBadRequest?: string){

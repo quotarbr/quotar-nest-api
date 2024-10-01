@@ -139,7 +139,7 @@ model Lojista {
   lojst_status            LOJST_STATUS             @default(liberacao)
   lojst_senha_hash        String                   @db.VarChar(255)
   lojst_web_token         String?                  @db.VarChar(255)
-  lojst_token_inspiracao  String?                  @db.VarChar(255)
+  lojst_token_expiracao   String?                  @db.VarChar(255)
   lojst_token_recuperacao String?                  @db.VarChar(255)
   cid_id                  Int
   bai_id                  Int

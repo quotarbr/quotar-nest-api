@@ -20,13 +20,13 @@ export class LojistasController {
     return this.lojistasService.create(createLojistaDto);
   }
 
-  @Get('me')
-  @UseGuards(EnsureLojistaAuthenticateGuard)
-  findMe(@Req() { lojst_id } : Request) {
-    return this.lojistasService.findMe(+lojst_id);
-  }
+  // @Get('me')
+  // @UseGuards(EnsureLojistaAuthenticateGuard)
+  // findMe(@Req() { lojst_id } : Request) {
+  //   return this.lojistasService.findMe(+lojst_id);
+  // }
 
-  //minhasLojas com guard
+  //updateme
 
   @Get()
   findAll(@Query() params: FiltrarLojistaDto) {
@@ -43,6 +43,7 @@ export class LojistasController {
   }
 
   @Patch(':id')
+  //guard agente
   update(@Param('id') id: string, @Body() updateLojistaDto: UpdateLojistaDto) {
     return this.lojistasService.update(+id, updateLojistaDto);
   }

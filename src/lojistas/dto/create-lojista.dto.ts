@@ -23,9 +23,9 @@ export class CreateLojistaDto {
     @IsNotEmpty({ message: 'O e-mail não pode estar vazio.' })
     lojst_email: string;
 
-    @IsDate({ message: 'A data de cadastro deve ser uma data válida.' })
-    @IsOptional()
-    lojst_data_cadastro: Date;
+    // @IsDate({ message: 'A data de cadastro deve ser uma data válida.' })
+    // @IsOptional()
+    // lojst_data_cadastro: Date;
 
     @IsOptional()
     @Matches(/^\d{5}-\d{3}$|^\d{8}$/, { message: 'O CEP deve estar no formato XXXXX-XXX ou XXXXXXXXX.' })
@@ -56,14 +56,6 @@ export class CreateLojistaDto {
     })
     @IsNotEmpty({ message: 'A senha não pode estar vazia.' })
     lojst_senha: string;
-
-    @IsString({ message: 'O token de inspiração deve ser uma string.' })
-    @IsOptional()
-    lojst_token_inspiracao?: string;
-
-    @IsString({ message: 'O token de recuperação deve ser uma string.' })
-    @IsOptional()
-    lojst_token_recuperacao?: string;
 
     @IsNumber({}, { message: 'O ID da cidade deve ser um número.' })
     @IsNotEmpty({ message: 'O ID da cidade não pode estar vazio.' })
