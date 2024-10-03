@@ -88,9 +88,9 @@ export class LojistasService {
       lojst_endereco: createLojistaDto.lojst_endereco,
       lojst_login: createLojistaDto.lojst_login,
       lojst_senha_hash: await bcrypt.hash(createLojistaDto.lojst_senha, 10),
-      cidades: { connect: { cid_id: createLojistaDto.cid_id}},
-      bairros: { connect: { bai_id: createLojistaDto.bai_id}},
-      estados: { connect: { est_id: createLojistaDto.est_id}},
+      cidade: { connect: { cid_id: createLojistaDto.cid_id}},
+      bairro: { connect: { bai_id: createLojistaDto.bai_id}},
+      estado: { connect: { est_id: createLojistaDto.est_id}},
       lojst_loja_parceira: createLojistaDto.lojst_loja_parceira
     };
 
@@ -138,9 +138,9 @@ export class LojistasService {
         lojst_cep: true,
         lojst_endereco: true,
         lojst_status: true,
-        cidades: true,
-        estados: true,
-        bairros: true,
+        cidade: true,
+        estado: true,
+        bairro: true,
         lojst_loja_parceira: true,
         lojas: {
           select:{
@@ -200,7 +200,7 @@ export class LojistasService {
     if(updateLojistaDto.hasOwnProperty('cid_id')) {
       const hasCidade = await this.prismaService.cidade.findFirst({
         where: {
-          est_id: updateLojistaDto.est_id || oldLojista.estados.est_id,
+          est_id: updateLojistaDto.est_id || oldLojista.estado.est_id,
           cid_id: updateLojistaDto.cid_id
         }
       })
@@ -294,9 +294,9 @@ export class LojistasService {
         lojst_cep: true,
         lojst_endereco: true,
         lojst_status: true,
-        cidades: true,
-        estados: true,
-        bairros: true,
+        cidade: true,
+        estado: true,
+        bairro: true,
         lojst_loja_parceira: true,
         lojas: {
           select:{

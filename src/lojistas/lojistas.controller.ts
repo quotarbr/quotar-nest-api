@@ -26,7 +26,7 @@ export class LojistasController {
   //   return this.lojistasService.findMe(+lojst_id);
   // }
 
-  //updateme
+  //updateMe
 
   @Get()
   findAll(@Query() params: FiltrarLojistaDto) {
