@@ -146,8 +146,7 @@ export class LojistasService {
           select:{
             loj_id: true,
             loj_nome:true,
-            loj_logo: true,
-            _count: true
+            loj_logo: true
           }
         }
       }

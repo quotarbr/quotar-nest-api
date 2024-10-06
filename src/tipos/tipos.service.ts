@@ -90,7 +90,7 @@ export class TiposService {
 
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.ceil( total / limite ),
+      paginas: Math.floor( total / limite ),
       pagina,
       limite,
       total,

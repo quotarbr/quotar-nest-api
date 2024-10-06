@@ -31,7 +31,10 @@ export class LojasController {
     return this.lojasService.findOne(+id);
   }
 
+  //criar updateme
+
   @Patch(':id')
+  //guard agente
   update(@Param('id') id: string, @Body() updateLojaDto: UpdateLojaDto) {
     return this.lojasService.update(+id, updateLojaDto);
   }

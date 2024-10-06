@@ -13,7 +13,7 @@ export class LojasService {
   ){}
 
   async create(createLojaDto: CreateLojaDto) {
-    const {loj_cnpj, loj_nome, loj_email, est_id, cid_id, bai_id} = createLojaDto;
+    const {loj_cnpj, loj_nome, loj_email, est_id, cid_id, bai_id, lojst_id} = createLojaDto;
   
     const hasLoja = await this.prismaService.loja.findFirst({ where: { loj_email }})
     if(hasLoja){ throw new BadRequestException("Loja já cadastrada") };
@@ -30,6 +30,8 @@ export class LojasService {
     if (!hasCid) throw new BadRequestException("Cidade não encontrada!");
     const hasBai = await this.prismaService.bairro.findFirst({ where: { bai_id, cid_id } })
     if (!hasBai) throw new BadRequestException("Bairro não encontrado!");
+    const hasLojista = await this.prismaService.lojista.findFirst({ where: { lojst_id } })
+    if (!hasLojista) throw new BadRequestException("Lojista não encontrado!");
 
     const data: Prisma.LojaCreateInput = {
       loj_nome: createLojaDto.loj_nome,
@@ -41,10 +43,10 @@ export class LojasService {
       loj_text_sobre: createLojaDto.loj_text_sobre,      
       loj_cep: createLojaDto.loj_cep,            
       loj_endereco: createLojaDto.loj_endereco,           
-      cidades: { connect: {cid_id: createLojaDto.cid_id} },   
-      bairros: { connect: {bai_id: createLojaDto.bai_id} },              
-      estados: { connect: {est_id: createLojaDto.est_id} },              
-      lojistas: { connect: {lojst_id: createLojaDto.lojst_id} }  
+      cidade: { connect: {cid_id: createLojaDto.cid_id} },   
+      bairro: { connect: {bai_id: createLojaDto.bai_id} },              
+      estado: { connect: {est_id: createLojaDto.est_id} },              
+      lojista: { connect: {lojst_id: createLojaDto.lojst_id} }  
     }
 
     const loja = await this.prismaService.loja.create({data})
@@ -64,12 +66,12 @@ export class LojasService {
         { loj_nome: { contains: params.string.trim()} },
         { loj_cnpj: { contains: params.string.trim()} },
         { loj_email: { contains: params.string.trim()} },
-        { OR: [ { estados: {
+        { OR: [ { estado: {
               est_nome: params.string.trim(),
               est_sigla: params.string.trim()
         } }]},
-        { cidades: { cid_nome: {contains: params.string.trim()}}},
-        { bairros : { bai_nome: { contains: params.string.trim()}}},
+        { cidade: { cid_nome: {contains: params.string.trim()}}},
+        { bairro : { bai_nome: { contains: params.string.trim()}}},
         { loj_id: +params.string || 0 }
       ]
     }
@@ -95,10 +97,10 @@ export class LojasService {
         loj_cep: true,
         loj_endereco: true,
         loj_data_cadastro: true,
-        estados:  { select: { est_nome: true }},
-        cidades:  { select: {  cid_nome: true }},
-        bairros:  { select: { bai_nome: true }},
-        lojistas: { select: { lojst_id: true, lojst_nome: true}}
+        estado:  { select: { est_nome: true }},
+        cidade:  { select: {  cid_nome: true }},
+        bairro:  { select: { bai_nome: true }},
+        lojista: { select: { lojst_id: true, lojst_nome: true}}
       }
     });
 
@@ -106,8 +108,8 @@ export class LojasService {
 
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.ceil( total / limite),
       pagina,
+      total_paginas: Math.floor( total / limite),
       limite,
       total: total,
       total_resultados: lojas.length,
@@ -131,12 +133,13 @@ export class LojasService {
   }
 
   async update(id: number, updateLojaDto: UpdateLojaDto) {
+    const {lojst_id} = updateLojaDto
     const oldLoja = await this.ensureLojaExists(id);
     const data: Prisma.LojaUpdateInput = {}
 
-    this.validaUpdateInput(id, updateLojaDto, 'loj_nome', 'Nome já cadastrado!');
-    this.validaUpdateInput(id, updateLojaDto, 'loj_cnpj', 'Cnpj já cadastrado!');
-    this.validaUpdateInput(id, updateLojaDto, 'loj_email', 'E-mail já cadastrado!');
+    await this.validaUpdateInput(id, updateLojaDto, 'loj_nome', 'Nome já cadastrado!');
+    await this.validaUpdateInput(id, updateLojaDto, 'loj_cnpj', 'Cnpj já cadastrado!');
+    await this.validaUpdateInput(id, updateLojaDto, 'loj_email', 'E-mail já cadastrado!');
 
     if(updateLojaDto.hasOwnProperty('est_id')) {
       const hasEstado = await this.prismaService.estado.findFirst({ where: { est_id: updateLojaDto.est_id } })
@@ -146,11 +149,10 @@ export class LojasService {
     if(updateLojaDto.hasOwnProperty('cid_id')) {
       const hasCidade = await this.prismaService.cidade.findFirst({
         where: {
-          est_id: updateLojaDto.est_id || oldLoja.estados.est_id,
+          est_id: updateLojaDto.est_id || oldLoja.estado.est_id,
           cid_id: updateLojaDto.cid_id
         }
       })
-
       if(!hasCidade) throw new BadRequestException("Cidade não encontrada!");
     }
 
@@ -163,6 +165,9 @@ export class LojasService {
       })
       if(!hasBairro) throw new BadRequestException("Bairro não encontrada!");
     }
+
+    const hasLojista = await this.prismaService.lojista.findFirst({ where: { lojst_id } })
+    if (!hasLojista) throw new BadRequestException("Lojista não encontrado!");
 
     const loja = await this.prismaService.loja.update({
       data: {...updateLojaDto},
@@ -202,10 +207,10 @@ export class LojasService {
         loj_cep: true,
         loj_endereco: true,
         loj_data_cadastro: true,
-        estados:  { select: { est_id:true, est_nome: true }},
-        cidades:  { select: { cid_nome: true }},
-        bairros:  { select: { bai_nome: true }},
-        lojistas: { select: { lojst_id: true, lojst_nome: true}}
+        estado:  { select: { est_id:true, est_nome: true }},
+        cidade:  { select: { cid_nome: true }},
+        bairro:  { select: { bai_nome: true }},
+        lojista: { select: { lojst_id: true, lojst_nome: true}}
       }
     }) 
 
@@ -215,8 +220,8 @@ export class LojasService {
   }
   private async validaUpdateInput(id: number, updateLojaDto: UpdateLojaDto, property?: string, msgBadRequest?: string){
     if(updateLojaDto.hasOwnProperty(property)){
-      const hasProperty = await this.prismaService.lojista.findFirst({
-        where: { [property]: updateLojaDto[property], lojst_id: {not: id} }
+      const hasProperty = await this.prismaService.loja.findFirst({
+        where: { [property]: updateLojaDto[property], loj_id: {not: id} }
       })
       if(hasProperty) throw new BadRequestException(msgBadRequest);
     }

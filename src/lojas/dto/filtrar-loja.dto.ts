@@ -2,8 +2,8 @@ import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-valida
 
 export class FiltrarLojasDto {
            
-  @IsString()
-  @IsNotEmpty()
+  @IsOptional()
+  @IsString({ message: 'O campo de busca deve ser uma string.' })
   string: string
   
   @IsOptional()

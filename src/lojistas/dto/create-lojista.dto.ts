@@ -15,17 +15,13 @@ export class CreateLojistaDto {
     @IsOptional()
     lojst_img_perfil?: string;
 
-    @IsPhoneNumber(null ,{ message: 'O telefone deve ser um número válido no formato +55XXXXXXXXXXX (código do país seguido do número).' })
+    @IsPhoneNumber(null ,{ message: 'O telefone deve ser um número válido no formato +55XXXXXXXXXXX.' })
     @IsNotEmpty({ message: 'O telefone não pode estar vazio.' })
     lojst_telefone: string;
 
     @IsEmail({}, { message: 'O e-mail deve ser um endereço válido.' })
     @IsNotEmpty({ message: 'O e-mail não pode estar vazio.' })
     lojst_email: string;
-
-    // @IsDate({ message: 'A data de cadastro deve ser uma data válida.' })
-    // @IsOptional()
-    // lojst_data_cadastro: Date;
 
     @IsOptional()
     @Matches(/^\d{5}-\d{3}$|^\d{8}$/, { message: 'O CEP deve estar no formato XXXXX-XXX ou XXXXXXXXX.' })

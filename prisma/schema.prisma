@@ -9,30 +9,28 @@ datasource db {
 }
 
 model agente {
-  age_id          Int               @id @default(autoincrement())
-  age_nome        String?           @db.VarChar(100)
-  age_login       String?           @db.VarChar(100)
-  age_senha_hash  String?           @db.VarChar(255)
-  age_web_token   String?           @db.VarChar(255)
-
-  permissoes      agente_permissao[] @relation("AgenteToPermissoes") 
+  age_id         Int                @id @default(autoincrement())
+  age_nome       String?            @db.VarChar(100)
+  age_login      String?            @db.VarChar(100)
+  age_senha_hash String?            @db.VarChar(255)
+  age_web_token  String?            @db.VarChar(255)
+  permissoes     agente_permissao[] @relation("AgenteToPermissoes")
 }
 
-model agentes_permissoes {  
-  perm_id        Int               @id @default(autoincrement())
-  perm_nome      String?           @db.VarChar(100)
-
-  agentes        agente_permissao[] @relation("AgenteToPermissoes") 
+model agentes_permissoes {
+  perm_id   Int                @id @default(autoincrement())
+  perm_nome String?            @db.VarChar(100)
+  agentes   agente_permissao[] @relation("AgenteToPermissoes")
 }
 
 model agente_permissao {
-  age_id     Int
-  perm_id    Int
-
-  agente     agente                @relation(fields: [age_id], references: [age_id], name: "AgenteToPermissoes")
-  permissao  agentes_permissoes    @relation(fields: [perm_id], references: [perm_id], name: "AgenteToPermissoes")
+  age_id    Int
+  perm_id   Int
+  agente    agente             @relation("AgenteToPermissoes", fields: [age_id], references: [age_id])
+  permissao agentes_permissoes @relation("AgenteToPermissoes", fields: [perm_id], references: [perm_id])
 
   @@id([age_id, perm_id])
+  @@index([perm_id], map: "agente_permissao_perm_id_fkey")
 }
 
 model Bairro {
@@ -67,7 +65,7 @@ model Cidade {
 model Estado {
   est_id     Int         @id @default(autoincrement())
   est_nome   String      @db.VarChar(50)
-  est_sigla   String      @db.VarChar(50)
+  est_sigla  String      @db.VarChar(50)
   cidades    Cidade[]
   lojas      Loja[]
   lojistas   Lojista[]
@@ -97,25 +95,25 @@ model Fatura {
 }
 
 model Loja {
-  loj_id              Int                  @id @default(autoincrement())
-  loj_nome            String               @db.VarChar(100)
-  loj_cnpj            String               @db.VarChar(14)
-  loj_logo            String?              @db.VarChar(255)
-  loj_slogan          String?              @db.VarChar(255)
-  loj_telefone        String               @db.VarChar(20)
-  loj_email           String               @db.VarChar(150)
-  loj_text_sobre      String?              @db.VarChar(255)
-  loj_cep             String               @db.VarChar(10)
-  loj_endereco        String               @db.VarChar(150)
-  loj_data_cadastro   DateTime             @default(now()) @db.DateTime(0)
+  loj_id              Int                 @id @default(autoincrement())
+  loj_nome            String              @db.VarChar(100)
+  loj_cnpj            String              @db.VarChar(18)
+  loj_logo            String?             @db.VarChar(255)
+  loj_slogan          String?             @db.VarChar(255)
+  loj_telefone        String              @db.VarChar(20)
+  loj_email           String              @db.VarChar(150)
+  loj_text_sobre      String?             @db.VarChar(255)
+  loj_cep             String              @db.VarChar(10)
+  loj_endereco        String              @db.VarChar(150)
+  loj_data_cadastro   DateTime            @default(now()) @db.DateTime(0)
   cid_id              Int
   bai_id              Int
   est_id              Int
   lojst_id            Int
-  lojistas            Lojista              @relation(fields: [lojst_id], references: [lojst_id], onUpdate: Restrict, map: "fk_loj_lojst_id")
-  cidades             Cidade               @relation(fields: [cid_id], references: [cid_id], onUpdate: Restrict, map: "lojas_ibfk_1")
-  bairros             Bairro               @relation(fields: [bai_id], references: [bai_id], onUpdate: Restrict, map: "lojas_ibfk_2")
-  estados             Estado               @relation(fields: [est_id], references: [est_id], onUpdate: Restrict, map: "lojas_ibfk_3")
+  lojista             Lojista             @relation(fields: [lojst_id], references: [lojst_id], onUpdate: Restrict, map: "fk_loj_lojst_id")
+  cidade              Cidade              @relation(fields: [cid_id], references: [cid_id], onUpdate: Restrict, map: "lojas_ibfk_1")
+  bairro              Bairro              @relation(fields: [bai_id], references: [bai_id], onUpdate: Restrict, map: "lojas_ibfk_2")
+  estado              Estado              @relation(fields: [est_id], references: [est_id], onUpdate: Restrict, map: "lojas_ibfk_3")
   orcamento_variantes OrcamentoVariante[]
   produtos            Produto[]
 
@@ -138,19 +136,19 @@ model Lojista {
   lojst_endereco          String?                  @db.VarChar(150)
   lojst_status            LOJST_STATUS             @default(liberacao)
   lojst_senha_hash        String                   @db.VarChar(255)
-  lojst_web_token         String?                  @db.VarChar(255)
-  lojst_token_expiracao   String?                  @db.VarChar(255)
   lojst_token_recuperacao String?                  @db.VarChar(255)
   cid_id                  Int
   bai_id                  Int
   est_id                  Int
-  lojst_loja_parceira     Json?                  
+  lojst_loja_parceira     String?                  @db.LongText
   lojst_login             String                   @unique @db.VarChar(50)
+  lojst_web_token         String?                  @db.VarChar(255)
+  lojst_token_expiracao   String?                  @db.VarChar(255)
   faturas                 Fatura[]
   lojas                   Loja[]
-  cidades                 Cidade                   @relation(fields: [cid_id], references: [cid_id], onUpdate: Restrict, map: "lojistas_ibfk_1")
-  bairros                 Bairro                   @relation(fields: [bai_id], references: [bai_id], onUpdate: Restrict, map: "lojistas_ibfk_2")
-  estados                 Estado                   @relation(fields: [est_id], references: [est_id], onUpdate: Restrict, map: "lojistas_ibfk_3")
+  cidade                  Cidade                   @relation(fields: [cid_id], references: [cid_id], onUpdate: Restrict, map: "lojistas_ibfk_1")
+  bairro                  Bairro                   @relation(fields: [bai_id], references: [bai_id], onUpdate: Restrict, map: "lojistas_ibfk_2")
+  estado                  Estado                   @relation(fields: [est_id], references: [est_id], onUpdate: Restrict, map: "lojistas_ibfk_3")
   permissoes_notificacoes Permissoes_notificacao[]
 
   @@index([bai_id], map: "bai_id")
@@ -177,18 +175,18 @@ model OrcamentoVariante {
 }
 
 model Orcamento {
-  orcto_id               Int                  @id @default(autoincrement())
-  orcto_data_emissao     DateTime?            @default(now()) @db.DateTime(0)
-  orcto_quantidade_prodt Int?                 @db.UnsignedInt
-  orcto_total            Decimal?             @db.Decimal(10, 2)
+  orcto_id               Int                 @id @default(autoincrement())
+  orcto_data_emissao     DateTime?           @default(now()) @db.DateTime(0)
+  orcto_quantidade_prodt Int?                @db.UnsignedInt
+  orcto_total            Decimal?            @db.Decimal(10, 2)
   orcto_fav              Boolean?
-  orcto_creatAt          DateTime             @default(now())
-  orcto_updateAt         DateTime             @updatedAt
+  orcto_creatAt          DateTime            @default(now())
+  orcto_updateAt         DateTime            @updatedAt
   usr_id                 Int?
   vist_id                Int?
   orcamento_variantes    OrcamentoVariante[]
-  usuarios               Usuario?             @relation(fields: [usr_id], references: [usr_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_1")
-  visitantes             Visitante?           @relation(fields: [vist_id], references: [vist_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_2")
+  usuarios               Usuario?            @relation(fields: [usr_id], references: [usr_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_1")
+  visitantes             Visitante?          @relation(fields: [vist_id], references: [vist_id], onDelete: Restrict, onUpdate: Restrict, map: "orcamentos_ibfk_2")
 
   @@index([usr_id], map: "usr_id")
   @@index([vist_id], map: "vist_id")
@@ -220,17 +218,17 @@ model Planos {
 }
 
 model Produto {
-  prodt_id         Int              @id @default(autoincrement())
-  prodt_fotos      Json?          
-  prodt_nome       String           @db.VarChar(100)
-  prodt_descricao  String?          @db.VarChar(255)
-  prodt_created_at DateTime         @default(now())
-  prodt_updated_at DateTime         @updatedAt
+  prodt_id         Int           @id @default(autoincrement())
+  prodt_fotos      String?       @db.LongText
+  prodt_nome       String        @db.VarChar(100)
+  prodt_descricao  String?       @db.VarChar(255)
+  prodt_created_at DateTime      @default(now())
+  prodt_updated_at DateTime      @updatedAt
   loj_id           Int
   prodt_status     PRODT_STATUS
   opcoes           Opcao[]
-  tipos            ProdutoTipo[]    
-  lojas            Loja             @relation(fields: [loj_id], references: [loj_id], onUpdate: Restrict, map: "loj_id")
+  tipos            ProdutoTipo[]
+  lojas            Loja          @relation(fields: [loj_id], references: [loj_id], onUpdate: Restrict, map: "loj_id")
   variantes        Variante[]
 
   @@index([loj_id], map: "loj_id")
@@ -240,38 +238,38 @@ model Produto {
 model ProdutoTipo {
   prod_id Int
   tp_id   Int
-
   produto Produto @relation(fields: [prod_id], references: [prodt_id], onDelete: Cascade)
   tipo    Tipo    @relation(fields: [tp_id], references: [tp_id], onDelete: Cascade)
 
   @@id([prod_id, tp_id])
+  @@index([tp_id], map: "produto_tipos_tp_id_fkey")
   @@map("produto_tipos")
 }
 
 model Tipo {
-  tp_id      Int              @id @default(autoincrement())
-  tp_nome    String           @db.VarChar(150)
-  produtos   ProdutoTipo[]    
-  categorias TipoCategoria[] 
+  tp_id      Int             @id @default(autoincrement())
+  tp_nome    String          @db.VarChar(150)
+  produtos   ProdutoTipo[]
+  categorias TipoCategoria[]
 
   @@map("tipos")
 }
 
 model TipoCategoria {
-  tp_id   Int
-  cat_id  Int
-
-  tipo     Tipo      @relation(fields: [tp_id], references: [tp_id], onDelete: Cascade)
+  tp_id     Int
+  cat_id    Int
   categoria Categoria @relation(fields: [cat_id], references: [cat_id], onDelete: Cascade)
+  tipo      Tipo      @relation(fields: [tp_id], references: [tp_id], onDelete: Cascade)
 
   @@id([tp_id, cat_id])
+  @@index([cat_id], map: "tipo_categorias_cat_id_fkey")
   @@map("tipo_categorias")
 }
 
 model Categoria {
   cat_id   Int             @id @default(autoincrement())
   cat_nome String          @db.VarChar(150)
-  tipos    TipoCategoria[] 
+  tipos    TipoCategoria[]
 
   @@map("categorias")
 }
@@ -316,15 +314,15 @@ model Usuario {
 }
 
 model Variante {
-  vrnt_id             Int                  @id @default(autoincrement())
-  vrnt_fotos          Json?             
-  vrnt_preco          Decimal              @db.Decimal(10, 2)           
+  vrnt_id             Int                 @id @default(autoincrement())
+  vrnt_fotos          String?             @db.LongText
+  vrnt_preco          Decimal             @db.Decimal(10, 2)
   prodt_id            Int
   tp_prec_id          Int
   orcamento_variantes OrcamentoVariante[]
-  opcoes              VarianteOpcoes[]     
-  produto             Produto              @relation(fields: [prodt_id], references: [prodt_id], onDelete: Cascade, map: "prodt_id")
-  tipos_precos        Tipos_preco          @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
+  opcoes              VarianteOpcoes[]
+  produto             Produto             @relation(fields: [prodt_id], references: [prodt_id], onDelete: Cascade, map: "prodt_id")
+  tipos_precos        Tipos_preco         @relation(fields: [tp_prec_id], references: [tp_prec_id], onUpdate: Restrict, map: "tp_prec_id")
 
   @@index([prodt_id], map: "prodt_id")
   @@index([tp_prec_id], map: "tp_prec_id")
@@ -332,24 +330,23 @@ model Variante {
 }
 
 model VarianteOpcoes {
-  vrnt_id Int
-  opc_id  Int
-
-  variante Variante @relation(fields: [vrnt_id], references: [vrnt_id], onDelete: Cascade)
+  vrnt_id  Int
+  opc_id   Int
   opcao    Opcao    @relation(fields: [opc_id], references: [opc_id], onDelete: Cascade)
+  variante Variante @relation(fields: [vrnt_id], references: [vrnt_id], onDelete: Cascade)
 
-  @@id([vrnt_id, opc_id]) 
+  @@id([vrnt_id, opc_id])
+  @@index([opc_id], map: "variante_opcoes_opc_id_fkey")
   @@map("variante_opcoes")
 }
-
 
 model Opcao {
   opc_id      Int              @id @default(autoincrement())
   opc_nome    String           @db.VarChar(100)
-  opc_valores Json           
+  opc_valores String           @db.LongText
   prodt_id    Int?
-  produtos    Produto?          @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
-  variantes   VarianteOpcoes[] 
+  produtos    Produto?         @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
+  variantes   VarianteOpcoes[]
 
   @@index([prodt_id], map: "fk_prodt_id")
   @@map("opcoes")
