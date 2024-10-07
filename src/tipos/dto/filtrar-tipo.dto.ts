@@ -3,7 +3,7 @@ import { IsOptional, IsString } from "class-validator";
 export class FiltrarTipoDto {
 
     @IsOptional()
-    @IsString()
+    @IsString({ message: 'O campo de busca deve ser uma string.' })
     string?: string;
 
     @IsOptional()

@@ -19,15 +19,14 @@ export class TiposService {
       tp_nome: tp_nome
     }
 
-    const tipo = await this.prismaService.tipo.create({data});
-
+    
     const hasCategoria = await Promise.all(
-      categorias.map( (cat_id) => {
-        this.prismaService.categoria.findFirst({
+      categorias.map( async (cat_id) => {        
+        return await this.prismaService.categoria.findFirst({
           where:{
             cat_id
           }
-        })
+        });
       })
     );
 
@@ -36,6 +35,8 @@ export class TiposService {
         throw new BadRequestException(`Categoria ${categorias[i]} não encontrada`)
       }
     })
+
+    const tipo = await this.prismaService.tipo.create({data});
 
     let tipoCategoriaList: Prisma.TipoCategoriaCreateManyInput[] = categorias.map((cat_id) => {
       return {
@@ -55,12 +56,14 @@ export class TiposService {
 
   async findAll(params?: FiltrarTipoDto) {
     const whereClause: Prisma.TipoWhereInput = {}
+
     if(params?.string){
       whereClause.OR = [
         { tp_nome: { contains: params.string.trim() }},
         { tp_id: +params.string || 0 }
       ]
     }
+
     const pagina  = ( +params?.pagina || 1 );
     const limite  = ( +params?.limite || 10 );
     const skip    = ( pagina - 1 ) * limite ;
@@ -90,8 +93,8 @@ export class TiposService {
 
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.floor( total / limite ),
       pagina,
+      total_paginas: Math.floor( total / limite ),
       limite,
       total,
       total_resultados: tipos.length,
@@ -100,7 +103,7 @@ export class TiposService {
   }
 
   async findOne(id: number) {
-    const tipo = this.ensureTipoExists(id);
+    const tipo = await this.ensureTipoExists(id);
     return {
       statusCode: HttpStatus.OK,
       resultado: tipo
@@ -108,7 +111,7 @@ export class TiposService {
   }
 
   async update(id: number, updateTipoDto: UpdateTipoDto) {
-    const {tp_nome } = updateTipoDto;
+    const { tp_nome } = updateTipoDto;
 
     const oldTipo = await this.ensureTipoExists(id);
 
@@ -137,36 +140,39 @@ export class TiposService {
   }
 
   async updateAssociation(tipo: Tipo ,updateTipoDto: UpdateTipoDto){
-    try{
-      const { categorias } = updateTipoDto;
-  
-      const currentAssociations = await this.prismaService.tipoCategoria.findMany({
-        where: { tp_id: tipo.tp_id },
-        select: { cat_id: true },
-      });
-      const currentCategoryIds: number[] = currentAssociations.map((assoc) => assoc.cat_id);
-      const newCategoryIds = categorias;
-  
-      const categoriesToAdd = newCategoryIds.filter((cat_id) => !currentCategoryIds.includes(cat_id));
-      const categoriesToRemove = currentCategoryIds.filter((cat_id) => !newCategoryIds.includes(cat_id));
-  
-      await this.prismaService.tipoCategoria.createMany({
-        data: categoriesToAdd.map((cat_id) => ({
-          tp_id: tipo.tp_id,
-          cat_id: cat_id,
-        })),
-      });
-  
-      await this.prismaService.tipoCategoria.deleteMany({
-        where: {
-          tp_id: tipo.tp_id,
-          cat_id: { in: categoriesToRemove },
-        },
-      });
-    }catch(e){
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      throw new Error(errorMessage);
+    
+    const { categorias } = updateTipoDto;
+
+    if (updateTipoDto.hasOwnProperty('categorias')) {
+      await Promise.all(categorias.map(async (cat_id) => {
+        const hasCategoria = await this.prismaService.categoria.findFirst({ where: { cat_id } });
+        if (!hasCategoria) throw new BadRequestException(`Categoria ${cat_id} não encontrada.`);
+      }));
     }
+    
+    const currentAssociations = await this.prismaService.tipoCategoria.findMany({
+      where: { tp_id: tipo.tp_id },
+      select: { cat_id: true },
+    });
+    const currentCategoryIds: number[] = currentAssociations.map((assoc) => assoc.cat_id);
+    const newCategoryIds = categorias;
+
+    const categoriesToAdd = newCategoryIds.filter((cat_id) => !currentCategoryIds.includes(cat_id));
+    const categoriesToRemove = currentCategoryIds.filter((cat_id) => !newCategoryIds.includes(cat_id));
+
+    await this.prismaService.tipoCategoria.createMany({
+      data: categoriesToAdd.map((cat_id) => ({
+        tp_id: tipo.tp_id,
+        cat_id: cat_id,
+      })),
+    });
+
+    await this.prismaService.tipoCategoria.deleteMany({
+      where: {
+        tp_id: tipo.tp_id,
+        cat_id: { in: categoriesToRemove },
+      },
+    });
   }
 
   async remove(id: number) {

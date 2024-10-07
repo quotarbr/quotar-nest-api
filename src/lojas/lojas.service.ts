@@ -111,7 +111,7 @@ export class LojasService {
       pagina,
       total_paginas: Math.floor( total / limite),
       limite,
-      total: total,
+      total,
       total_resultados: lojas.length,
       resultados: lojas
     } 

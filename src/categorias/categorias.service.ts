@@ -59,8 +59,8 @@ export class CategoriasService {
     const total = await this.prismaService.categoria.count({where: whereClause});
     return {
       statusCode: HttpStatus.OK,
-      paginas: Math.floor( total / limite ),
       pagina,
+      total_paginas: Math.floor( total / limite ),
       limite,
       total,
       total_resultados: categorias.length,
