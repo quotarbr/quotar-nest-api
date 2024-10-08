@@ -65,7 +65,7 @@ export class ProdutosService {
     if (params?.string) {
       whereClause.OR = [
         { prodt_nome: { contains: params?.string.trim() } },
-        { lojas: { loj_nome: { contains: params.string.trim() } } },
+        { loja: { loj_nome: { contains: params.string.trim() } } },
         { opcoes: { some: { opc_nome: { contains: params?.string.trim() } } } },
         { prodt_descricao: { contains: params?.string.trim() } },
         {
@@ -137,7 +137,7 @@ export class ProdutosService {
             opc_valores: true,
           },
         },
-        lojas: {
+        loja: {
           select: {
             loj_id: true,
             loj_nome: true
@@ -197,7 +197,7 @@ export class ProdutosService {
       prodt_fotos: await this.uploadFotos(updateProdutoDto.prodt_fotos),
       prodt_nome,
       prodt_descricao,
-      lojas: {
+      loja: {
         connect: {
           loj_id: updateProdutoDto.prodt_loja
         }

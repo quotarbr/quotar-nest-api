@@ -228,7 +228,7 @@ model Produto {
   prodt_status     PRODT_STATUS
   opcoes           Opcao[]
   tipos            ProdutoTipo[]
-  lojas            Loja          @relation(fields: [loj_id], references: [loj_id], onUpdate: Restrict, map: "loj_id")
+  loja            Loja          @relation(fields: [loj_id], references: [loj_id], onUpdate: Restrict, map: "loj_id")
   variantes        Variante[]
 
   @@index([loj_id], map: "loj_id")
