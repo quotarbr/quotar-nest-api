@@ -1,12 +1,15 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class FotoDto {
-  @IsNumber()
+  @IsOptional()
+  @IsNumber({}, { message: 'O ID da foto deve ser um número válido.' })
   ft_id?: number;
   
-  @IsString()
+  @IsOptional()
+  @IsString({ message: 'A src da foto deve ser uma string válida.' })
   ft_src?: string;
   
-  @IsString()
+  @IsOptional()
+  @IsString({ message: 'A URI da foto deve ser uma string válida.' })
   ft_uri?: string;
 }

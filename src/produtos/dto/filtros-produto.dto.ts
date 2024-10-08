@@ -3,29 +3,22 @@ import { IsInt, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class FiltrosDto {
 
-  @IsNumber()
   @IsOptional()
-  tipo?: number;
+  tipo?: string;
 
-  @IsNumber()
   @IsOptional()
-  loja?: number;
+  loja?: string;
 
-  @IsNumber()
   @IsOptional()
-  opcao?: number;
+  opcao?: string;
 
   @IsString()
   @IsOptional()
   string?: string;
 
-  @Type(() => Number)
-  @IsInt()
   @IsOptional()
-  page?: number;
+  pagina?: number;
 
-  @Type(() => Number)
-  @IsInt()
   @IsOptional()
-  limit?: number;
+  limite?: number;
 }

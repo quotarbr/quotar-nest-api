@@ -117,12 +117,12 @@ export class LojasService {
     } 
   }
 
-  async findByNome(nome: string){
-    return await this.prismaService.loja.findMany({
-      where: { loj_nome: nome},
-      select: { loj_id: true }
-    })
-  }
+  // async findByNome(nome: string){
+  //   return await this.prismaService.loja.findMany({
+  //     where: { loj_nome: nome},
+  //     select: { loj_id: true }
+  //   })
+  // }
 
   async findOne(id: number) {
     const data = await this.ensureLojaExists(id);

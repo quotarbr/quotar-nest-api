@@ -1,5 +1,5 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
-import { Prisma, PRODT_STATUS } from '@prisma/client';
+import { Prisma, PRODT_STATUS, Produto } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FotoDto } from './dto/foto.dto';
 import { CreateProdutoDto } from './dto/create-produto.dto';
@@ -7,6 +7,8 @@ import { UpdateProdutoDto } from './dto/update-produto.dto';
 import { FiltrosDto } from './dto/filtros-produto.dto';
 import { LojasService } from 'src/lojas/lojas.service';
 import { TiposService } from 'src/tipos/tipos.service';
+import { contains } from 'class-validator';
+import { connect } from 'http2';
 
 @Injectable()
 export class ProdutosService {
@@ -31,11 +33,20 @@ export class ProdutosService {
       prodt_nome: createProdutoDto.prodt_nome,
       prodt_descricao: createProdutoDto.prodt_descricao,
       loj_id: createProdutoDto.prodt_loja,
-      tp_id: createProdutoDto.prodt_tipo,
-      prodt_status: await this.escolheStatus('liberacao'),
+      prodt_status: PRODT_STATUS.liberacao,
     };
 
     const produto = await this.prismaService.produto.create({ data });
+
+    const dataProdutoTipo: Prisma.ProdutoTipoCreateInput = {
+      produto: { connect: { prodt_id: produto.prodt_id} },
+      tipo: { connect: { tp_id: createProdutoDto.prodt_tipo} }
+    }
+
+    const hasTipo = await this.prismaService.tipo.findFirst({ where: { tp_id: createProdutoDto.prodt_tipo } })
+    if(!hasTipo) throw new BadRequestException("Tipo não cadastrado.");
+
+    await this.prismaService.produtoTipo.create({data: dataProdutoTipo});
 
     return {
       id: produto.prodt_id,
@@ -44,47 +55,25 @@ export class ProdutosService {
     };
   }
 
-  async findAll(filtros?: FiltrosDto) {
+  async findAll(params?: FiltrosDto) {
     const whereClause: Prisma.ProdutoWhereInput = {};
 
-    if (filtros?.tipo) {
-      whereClause.tipos = {
-        some: {
-          tp_id: filtros.tipo,
-        },
-      };
-    }
-    if (filtros?.loja) {
-      whereClause.loj_id = filtros?.loja;
-    }
+    if (params?.tipo) whereClause.tipos = { some: { tp_id: +params.tipo } };
+    if (params?.loja) whereClause.loj_id = +params?.loja; 
+    if (params?.opcao) whereClause.opcoes = { some: { opc_id: +params?.opcao } };
 
-    if (filtros?.opcao) {
-      whereClause.opcoes = {
-        some: {
-          opc_id: +filtros?.opcao,
-        },
-      };
-    }
-
-    if (filtros?.string) {
-      const lojaIds = (await this.lojasService.findByNome(filtros?.string)).map(
-        (loja) => loja.loj_id,
-      );
-
+    if (params?.string) {
       whereClause.OR = [
-        { loj_id: { in: lojaIds } },
-        {
-          opcoes: { some: { opc_nome: { contains: filtros?.string.trim() } } },
-        },
-        { prodt_nome: { contains: filtros?.string.trim() } },
-        { prodt_descricao: { contains: filtros?.string.trim() } },
+        { prodt_nome: { contains: params?.string.trim() } },
+        { lojas: { loj_nome: { contains: params.string.trim() } } },
+        { opcoes: { some: { opc_nome: { contains: params?.string.trim() } } } },
+        { prodt_descricao: { contains: params?.string.trim() } },
         {
           tipos: {
-            // tp_nome: { contains: filtros?.string.trim() }
             some: {
               tipo: {
                 tp_nome: {
-                  contains: filtros?.string.trim(),
+                  contains: params?.string.trim(),
                 },
               },
             },
@@ -98,7 +87,7 @@ export class ProdutosService {
                   some: {
                     categoria: {
                       cat_nome: {
-                        contains: filtros?.string.trim(),
+                        contains: params?.string.trim(),
                       },
                     },
                   },
@@ -106,13 +95,20 @@ export class ProdutosService {
               },
             },
           },
-        },
+        }
       ];
     }
 
-    const resultados = await this.prismaService.produto.findMany({
+    const pagina  = ( +params?.pagina || 1 );
+    const limite  = ( +params?.limite || 10 );
+    const skip    = ( pagina - 1 ) * limite ;
+    const take    = limite
+
+    const produtos = await this.prismaService.produto.findMany({
       where: whereClause,
-      take: filtros?.limit,
+      skip,
+      take,
+      orderBy: { prodt_id: 'desc'},
       select: {
         prodt_id: true,
         prodt_fotos: true,
@@ -141,17 +137,26 @@ export class ProdutosService {
             opc_valores: true,
           },
         },
+        lojas: {
+          select: {
+            loj_id: true,
+            loj_nome: true
+          }
+        },
+        prodt_updated_at: true
       },
     });
 
-    const totalProdutos = await this.prismaService.produto.count({
-      where: whereClause,
-    });
+    const total = await this.prismaService.produto.count({ where: whereClause });
 
     return {
       statusCode: HttpStatus.OK,
-      resultados,
-      total: totalProdutos,
+      pagina,
+      total_panigas: Math.floor( total / limite),
+      limite,
+      total,
+      total_resultados: produtos.length,
+      resultados: produtos,
     };
   }
 
@@ -164,27 +169,77 @@ export class ProdutosService {
   }
 
   async update(id: number, updateProdutoDto: UpdateProdutoDto) {
-    this.ensureProdutoExist(id);
+    const oldProduto: Produto = await this.ensureProdutoExist(id);
+    const { prodt_tipo, prodt_loja , prodt_nome, prodt_descricao } = updateProdutoDto;
 
-    const produto = this.prismaService.produto.update({
-      data: {
-        ...updateProdutoDto,
-        prodt_fotos: await this.uploadFotos(updateProdutoDto.prodt_fotos),
-        prodt_status: await this.escolheStatus(updateProdutoDto.prodt_status),
+    if(updateProdutoDto.hasOwnProperty('prodt_nome')){
+      const hasProduto = await this.prismaService.produto.findFirst({
+        where: {
+          prodt_nome,
+          loj_id: prodt_loja || oldProduto.loj_id,
+          prodt_id: { not: id }
+        }
+      });
+      if(hasProduto) throw new BadRequestException("Nome do produto já cadastrado.");
+    }
+
+    if(updateProdutoDto.hasOwnProperty('prodt_loja')){
+      const hasLoja = await this.prismaService.loja.findFirst({ where: { loj_id: prodt_loja } })
+      if(!hasLoja) throw new BadRequestException('Loja não encontrada.');
+    }
+
+    if(updateProdutoDto.hasOwnProperty('prodt_tipo')){
+      const hasTipo = await this.prismaService.tipo.findFirst({ where: { tp_id: prodt_tipo } })
+      if(!hasTipo) throw new BadRequestException('Tipo não encontrado.');
+    }
+
+    const data: Prisma.ProdutoUpdateInput = {
+      prodt_fotos: await this.uploadFotos(updateProdutoDto.prodt_fotos),
+      prodt_nome,
+      prodt_descricao,
+      lojas: {
+        connect: {
+          loj_id: updateProdutoDto.prodt_loja
+        }
       },
+      prodt_status: PRODT_STATUS.liberacao
+    }
+
+    const produto = await this.prismaService.produto.update({
+      data,
       where: { prodt_id: id },
     });
 
+    await this.updateProdutoTipo(oldProduto, updateProdutoDto);
+
     return {
-      produto,
+      id: produto.prodt_id,
+      message: "Produto atualizado com sucesso.",
       statusCode: HttpStatus.OK,
     };
+  }
+
+  async updateProdutoTipo(oldProduto: Produto, updateProdutoDto: UpdateProdutoDto ){
+    const produtoTipoUpdate: Prisma.ProdutoTipoUpdateInput = {
+      produto: { connect: { prodt_id: oldProduto.prodt_id}},
+      tipo: {connect: { tp_id: updateProdutoDto.prodt_tipo}}
+    }
+
+    await this.prismaService.produtoTipo.update({ 
+      where: {
+        prod_id_tp_id: {
+          prod_id: oldProduto.prodt_id,
+          tp_id: updateProdutoDto.prodt_tipo
+        }
+      },
+      data: produtoTipoUpdate
+    });
   }
 
   async remove(id: number) {
     const produto = await this.ensureProdutoExist(id);
 
-    this.prismaService.produto.delete({
+    await this.prismaService.produto.delete({
       where: { prodt_id: id },
     });
     return {
@@ -226,15 +281,7 @@ export class ProdutosService {
       },
     });
     if (!produto) throw new BadRequestException('Produto não encontrado');
-    else return produto;
-  }
-
-  private async escolheStatus(status: string) {
-    return status == 'liberacao'
-      ? PRODT_STATUS.liberacao
-      : status == 'ativo'
-        ? PRODT_STATUS.ativo
-        : PRODT_STATUS.inativo;
+    return produto;
   }
 
   private async uploadFotos(prodt_fotos: FotoDto[]) {

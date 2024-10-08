@@ -129,7 +129,7 @@ export class TiposService {
       }
     })
 
-    await this.updateAssociation(tipo, updateTipoDto);
+    await this.tipoCategoriaUpdate(tipo, updateTipoDto);
 
     return {
       id: tipo.tp_id,
@@ -139,7 +139,7 @@ export class TiposService {
     
   }
 
-  async updateAssociation(tipo: Tipo ,updateTipoDto: UpdateTipoDto){
+  async tipoCategoriaUpdate(tipo: Tipo ,updateTipoDto: UpdateTipoDto){
     
     const { categorias } = updateTipoDto;
 
