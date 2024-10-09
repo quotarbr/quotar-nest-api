@@ -10,14 +10,14 @@ export class OpcoesController {
 constructor(private opcaoService: OpcoesService) {}
 
   @Post()
-  create(@Body() createOpcaoDto: CreateOpcaoDto[]) {
-    return this.opcaoService.create(createOpcaoDto);
+  async create(@Body() createOpcaoDto: CreateOpcaoDto[]) {
+    return await this.opcaoService.create(createOpcaoDto);
   }
 
   @Get()
-  findAll(@Query() params: FiltrarOpcaoDto) {
+  async findAll(@Query() params: FiltrarOpcaoDto) {
     try {
-      return this.opcaoService.findAll(params);
+      return await this.opcaoService.findAll(params);
     }catch (error) {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }

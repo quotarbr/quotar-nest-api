@@ -25,20 +25,20 @@ export class OpcoesService {
       if(!hasProduto) throw new BadRequestException("Produto não encontrado!");
     });
 
-    const data: Prisma.OpcaoCreateInput[] = createOpcaoDto.map( opcao => ({
-      opc_nome: opcao.opc_nome,
-      opc_valores: opcao.opc_valores,
-      prodt_id: opcao.prodt_id
-    }));
 
-    const createdOpcoes = await Promise.all(
-      data.map( async (opcaoData) => {
-        return await this.prismaService.opcao.create({data: opcaoData})
-      })
-    )
+    let createdIds = [];
+    for( const opcaoDto of createOpcaoDto){
+      const data: Prisma.OpcaoCreateInput = {
+        opc_nome: opcaoDto.opc_nome,
+        opc_valores: JSON.stringify(opcaoDto.opc_valores),
+        produtos: {connect: {prodt_id: opcaoDto.prodt_id}}
+      }
 
-    const createdIds = createdOpcoes.map(opcao => opcao.opc_id);
-    
+      
+      const opcao = await this.prismaService.opcao.create({data: data})
+      createdIds.push(opcao.opc_id);
+    }
+
     return {
       ids: createdIds,
       message: "Opções criadas com sucesso!",
