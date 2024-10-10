@@ -10,17 +10,13 @@ export class OpcoesController {
 constructor(private opcaoService: OpcoesService) {}
 
   @Post()
-  async create(@Body() createOpcaoDto: CreateOpcaoDto[]) {
+  async create(@Body() createOpcaoDto: CreateOpcaoDto) {
     return await this.opcaoService.create(createOpcaoDto);
   }
 
   @Get()
   async findAll(@Query() params: FiltrarOpcaoDto) {
-    try {
-      return await this.opcaoService.findAll(params);
-    }catch (error) {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-    }
+    return await this.opcaoService.findAll(params);
   }
 
   @Get(':id')
@@ -28,9 +24,9 @@ constructor(private opcaoService: OpcoesService) {}
     return this.opcaoService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLojistaDto: UpdateOpcaoDto) {
-    return this.opcaoService.update(+id, updateLojistaDto);
+  @Patch()
+  update( @Body() updateLojistaDto: UpdateOpcaoDto) {
+    return this.opcaoService.update(updateLojistaDto);
   }
 
   @Delete(':id')

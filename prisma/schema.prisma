@@ -343,7 +343,7 @@ model VarianteOpcoes {
 model Opcao {
   opc_id      Int              @id @default(autoincrement())
   opc_nome    String           @db.VarChar(100)
-  opc_valores String           @db.LongText
+  opc_valores Json             
   prodt_id    Int?
   produtos    Produto?         @relation(fields: [prodt_id], references: [prodt_id], onUpdate: Restrict, map: "fk_prodt_id")
   variantes   VarianteOpcoes[]
