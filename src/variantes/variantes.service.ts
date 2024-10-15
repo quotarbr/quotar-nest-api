@@ -3,6 +3,7 @@ import { CreateVarianteDto } from './dto/create-variante.dto';
 import { UpdateVarianteDto } from './dto/update-variante.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OpcaoValor } from './dto/opcao-valor.dto';
+import { Opcao } from '@prisma/client';
 
 @Injectable()
 export class VariantesService {
@@ -104,5 +105,9 @@ export class VariantesService {
       }
     }
     return true;
+  }
+
+  async handleOpcoesToVariante(opcoesList: Opcao[]) {
+    console.log(opcoesList)
   }
 }
