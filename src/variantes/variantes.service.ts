@@ -15,6 +15,7 @@ export class VariantesService {
     const opcoes = createVarianteDto.map((vr) => vr.vrnt_opcoes).flat();
     await this.ensureOpcoeExist(opcoes);
 
+    return 
     const data =  createVarianteDto.map( variante => ({
       vrnt_fotos: JSON.stringify(variante.vrnt_fotos),
       vrnt_preco: variante.vrnt_preco,
@@ -105,9 +106,5 @@ export class VariantesService {
       }
     }
     return true;
-  }
-
-  async handleOpcoesToVariante(opcoesList: Opcao[]) {
-    console.log(opcoesList)
   }
 }

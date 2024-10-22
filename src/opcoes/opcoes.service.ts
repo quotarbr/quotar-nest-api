@@ -16,58 +16,40 @@ export class OpcoesService {
 
   async create(createOpcaoDto: CreateOpcaoDto) {
 
-    // const { prodt_id } = createOpcaoDto;
-    // const { opcoes } = createOpcaoDto;
+    const { prodt_id } = createOpcaoDto;
+    const { opcoes } = createOpcaoDto;
     
-    // for(const op of opcoes){
-    //   const hasOpcao = await this.prismaService.opcao.findFirst({ 
-    //     where: { 
-    //       opc_nome: op.opc_nome,
-    //       prodt_id
-    //     } 
-    //   });
-    //   if(hasOpcao) throw new BadRequestException("Opção já cadastrada!");
-    // }
+    for(const op of opcoes){
+      const hasOpcao = await this.prismaService.opcao.findFirst({ 
+        where: { 
+          opc_nome: op.opc_nome,
+          prodt_id
+        } 
+      });
+      if(hasOpcao) throw new BadRequestException("Opção já cadastrada!");
+    }
 
-    // const hasProduto = await this.prismaService.produto.findUnique({ where: { prodt_id } });
-    // if(!hasProduto) throw new BadRequestException("Produto não encontrado!");
+    const hasProduto = await this.prismaService.produto.findUnique({ where: { prodt_id } });
+    if(!hasProduto) throw new BadRequestException("Produto não encontrado!");
 
 
-    // let opcoesList:Opcao[] = [];
-    // for( const op of opcoes){
-    //   const data: Prisma.OpcaoCreateInput = {
-    //     opc_nome: op.opc_nome,
-    //     opc_valores: op.opc_valores,
-    //     produtos: {connect: {prodt_id}}
-    //   }
-
-    //   const opcao = await this.prismaService.opcao.create({data: data});
-    //   opcoesList.push(opcao);
-    // }
-    
-
-    // return {
-    //   id_opcoes: opcoesList.map( (op) => op.opc_id),
-    //   message: "Opções criadas com sucesso!",
-    //   statusCode: HttpStatus.OK,
-    // }    
-
-    const mockOpcoes: Opcao[] = [
-      {
-        opc_id: 1,
-        opc_nome: 'Cor',
-        opc_valores: ['Vermelho', 'Azul', 'Verde'],
-        prodt_id: 1
-      },
-      {
-        opc_id: 2,
-        opc_nome: 'Tamanho',
-        opc_valores: ['P', 'M', 'G'],
-        prodt_id: 1
+    let opcoesList:Opcao[] = [];
+    for( const op of opcoes){
+      const data: Prisma.OpcaoCreateInput = {
+        opc_nome: op.opc_nome,
+        opc_valores: op.opc_valores,
+        produtos: {connect: {prodt_id}}
       }
-    ]
 
-    this.varianteService.handleOpcoesToVariante(mockOpcoes);
+      const opcao = await this.prismaService.opcao.create({data: data});
+      opcoesList.push(opcao);
+    }
+    
+    return {
+      id_opcoes: opcoesList.map( (op) => op.opc_id),
+      message: "Opções criadas com sucesso!",
+      statusCode: HttpStatus.OK,
+    }    
 
   }
 
