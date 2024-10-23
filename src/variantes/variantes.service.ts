@@ -12,8 +12,13 @@ export class VariantesService {
   ){}
 
   async create(createVarianteDto: CreateVarianteDto[]) {
-    const opcoes = createVarianteDto.map( variante => variante.vrnt_opcoes );
-    // const vrntValorList = opcoes.map( op => op.opc_valor)
+
+    const opcoesList : OpcaoValor[] = createVarianteDto.map( variante => variante.vrnt_opcoes ).flat();
+    console.log(opcoesList)
+
+
+    // const valorOpcsList= opcoesList.map( op => op.)
+    // console.log('valorOpcsList', valorOpcsList)
 
     for ( const variante of createVarianteDto ) {
 
