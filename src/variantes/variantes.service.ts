@@ -12,14 +12,30 @@ export class VariantesService {
   ){}
 
   async create(createVarianteDto: CreateVarianteDto[]) {
-    const opcoes = createVarianteDto.map((vr) => vr.vrnt_opcoes).flat();
-    await this.ensureOpcoeExist(opcoes);
+    const opcoes = createVarianteDto.map( variante => variante.vrnt_opcoes );
+    // const vrntValorList = opcoes.map( op => op.opc_valor)
+
+    for ( const variante of createVarianteDto ) {
+
+      const hasProduto = await this.prismaService.produto.findFirst({where: {prodt_id: variante.prodt_id }});
+      if(!hasProduto) throw new BadRequestException("Produto não cadastrado.");
+
+      const hasTipoPreco = await this.prismaService.tipos_preco.findFirst({where: {tp_prec_id: variante.tp_prec_id}});
+      if(!hasTipoPreco) throw new BadRequestException("Tipo de preço não cadastrado.");
+
+      //ver se a opcao existe e é do produto em questão 
+
+    }
+
 
     return 
+
+
+
     const data =  createVarianteDto.map( variante => ({
       vrnt_fotos: JSON.stringify(variante.vrnt_fotos),
       vrnt_preco: variante.vrnt_preco,
-      vrnt_opcoes: JSON.stringify(variante.vrnt_opcoes),
+      // vrnt_opcoes: JSON.stringify(variante.vrnt_opcoes),
       prodt_id: variante.prodt_id,
       tp_prec_id: variante.tp_prec_id
     }))

@@ -13,10 +13,6 @@ export class CreateVarianteDto {
     @IsNotEmpty()
     vrnt_preco: number;
 
-    @IsArray()
-    @IsOptional()
-    vrnt_opcoes?: OpcaoValor[];
-
     @IsNumber()
     @IsNotEmpty()
     prodt_id: number;
@@ -24,5 +20,8 @@ export class CreateVarianteDto {
     @IsNumber()
     @IsNotEmpty()
     tp_prec_id: number;
+
+    @IsArray()
+    vrnt_opcoes: OpcaoValor[];
 
 }

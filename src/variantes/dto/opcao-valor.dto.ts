@@ -10,6 +10,6 @@ export class OpcaoValor {
     opc_nome: string;
     @IsString()
     @IsNotEmpty()
-    opc_valor: string;
+    opc_valor: string[];
             
 }

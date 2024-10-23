@@ -330,10 +330,11 @@ model Variante {
 }
 
 model VarianteOpcoes {
-  vrnt_id  Int
-  opc_id   Int
-  opcao    Opcao    @relation(fields: [opc_id], references: [opc_id], onDelete: Cascade)
-  variante Variante @relation(fields: [vrnt_id], references: [vrnt_id], onDelete: Cascade)
+  vrnt_id           Int
+  opc_id            Int
+  valor_variante    Json
+  opcao             Opcao    @relation(fields: [opc_id], references: [opc_id], onDelete: Cascade)
+  variante          Variante @relation(fields: [vrnt_id], references: [vrnt_id], onDelete: Cascade)
 
   @@id([vrnt_id, opc_id])
   @@index([opc_id], map: "variante_opcoes_opc_id_fkey")
