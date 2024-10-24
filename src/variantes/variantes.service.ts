@@ -4,6 +4,8 @@ import { UpdateVarianteDto } from './dto/update-variante.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OpcaoValor } from './dto/opcao-valor.dto';
 import { Opcao } from '@prisma/client';
+import { CategoriasController } from 'src/categorias/categorias.controller';
+import { arrayContains } from 'class-validator';
 
 @Injectable()
 export class VariantesService {
@@ -12,28 +14,22 @@ export class VariantesService {
   ){}
 
   async create(createVarianteDto: CreateVarianteDto[]) {
+    
 
-    const opcoesList : OpcaoValor[] = createVarianteDto.map( variante => variante.vrnt_opcoes ).flat();
-    console.log(opcoesList)
-
-
-    // const valorOpcsList= opcoesList.map( op => op.)
-    // console.log('valorOpcsList', valorOpcsList)
-
+    //para cada variante
     for ( const variante of createVarianteDto ) {
-
       const hasProduto = await this.prismaService.produto.findFirst({where: {prodt_id: variante.prodt_id }});
       if(!hasProduto) throw new BadRequestException("Produto não cadastrado.");
 
       const hasTipoPreco = await this.prismaService.tipos_preco.findFirst({where: {tp_prec_id: variante.tp_prec_id}});
       if(!hasTipoPreco) throw new BadRequestException("Tipo de preço não cadastrado.");
-
-      //ver se a opcao existe e é do produto em questão 
-
     }
 
-
     return 
+    const opcoesList   : OpcaoValor[] = createVarianteDto.map( variante => variante.vrnt_opcoes ).flat();
+    this.ensureOpcoeExist(opcoesList, createVarianteDto);
+
+
 
 
 
@@ -108,24 +104,38 @@ export class VariantesService {
     else return variante;
   }
 
-  async ensureOpcoeExist(opcoesValor: OpcaoValor[]) {
-    for (const op of opcoesValor) {
+  async ensureOpcoeExist(opcoesList: OpcaoValor[], createVarianteDto: CreateVarianteDto[]  ) {
+    for ( const variante of createVarianteDto ) {
+      //para cada opcoes da variante
+      for(const opc of opcoesList){
+        const opcValorList = opcoesList.map( (opc) => opc.opc_valor);
+    
+        const hasOpcao = await this.prismaService.opcao.findFirst({
+          where: {
+            opc_id: opc.opc_id,
+            prodt_id: variante.prodt_id
+          }
+        })
+    
+        if(!hasOpcao) throw new BadRequestException(`Opcão não cadastrada no produto ${variante.prodt_id}.`);
+    
+        for(const valor of opcValorList ){
+          const hasValorOpc = await this.prismaService.opcao.findFirst({
+            where: {
+              opc_valores: { array_contains: valor.trim() },
+              prodt_id: variante.prodt_id,
+              opc_nome: opc.opc_nome
+            }
+          })
+    
+          if(!hasValorOpc) throw new BadRequestException("Valor de opcão não cadastrado.")
+        }
       
-      const opcao = await this.prismaService.opcao.findUnique({
-        where: { opc_id: op.opc_id }
-      });
-
-      if(opcao){
-        const ensureNomeOpc = opcao.opc_nome == op.opc_nome;
-        const ensureValorOpc = true //opcao.opc_valores.(op.opc_valor);
-
-        // if (ensureNomeOpc === false || ensureValorOpc === false) {
-        //   throw new BadRequestException("Nome ou valor difere da opcão cadastrada para o produto.");
-        // } 
-      } else {
-          throw new BadRequestException("Opção não encontrada.");
       }
     }
-    return true;
+
+    return true
   }
+
+
 }
