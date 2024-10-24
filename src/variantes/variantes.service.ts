@@ -3,7 +3,7 @@ import { CreateVarianteDto } from './dto/create-variante.dto';
 import { UpdateVarianteDto } from './dto/update-variante.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OpcaoValor } from './dto/opcao-valor.dto';
-import { Opcao } from '@prisma/client';
+import { Opcao, Prisma, Variante } from '@prisma/client';
 import { CategoriasController } from 'src/categorias/categorias.controller';
 import { arrayContains } from 'class-validator';
 
@@ -15,8 +15,6 @@ export class VariantesService {
 
   async create(createVarianteDto: CreateVarianteDto[]) {
     
-
-    //para cada variante
     for ( const variante of createVarianteDto ) {
       const hasProduto = await this.prismaService.produto.findFirst({where: {prodt_id: variante.prodt_id }});
       if(!hasProduto) throw new BadRequestException("Produto não cadastrado.");
@@ -25,33 +23,35 @@ export class VariantesService {
       if(!hasTipoPreco) throw new BadRequestException("Tipo de preço não cadastrado.");
     }
 
+    
+    await this.ensureOpcoeExist(createVarianteDto);
+  
+    let varianteList: Variante[] = [];
+    // for( const variante of createVarianteDto){
+    //   const data: Prisma.VarianteCreateInput = {
+    //     vrnt_fotos: variante.vrnt_fotos,
+    //     vrnt_preco: variante.vrnt_preco,
+    //     produto: { connect: { }}
+
+    //   }
+
+    //   console.log(data)
+    // }
+
+
     return 
-    const opcoesList   : OpcaoValor[] = createVarianteDto.map( variante => variante.vrnt_opcoes ).flat();
-    this.ensureOpcoeExist(opcoesList, createVarianteDto);
 
+    // const createdVariantes = await Promise.all(
+    //   data.map( async (variante) => { 
+    //     return await this.prismaService.variante.create({data: variante})
+    //   })
+    // )
 
-
-
-
-    const data =  createVarianteDto.map( variante => ({
-      vrnt_fotos: JSON.stringify(variante.vrnt_fotos),
-      vrnt_preco: variante.vrnt_preco,
-      // vrnt_opcoes: JSON.stringify(variante.vrnt_opcoes),
-      prodt_id: variante.prodt_id,
-      tp_prec_id: variante.tp_prec_id
-    }))
-
-    const createdVariantes = await Promise.all(
-      data.map( async (variante) => { 
-        return await this.prismaService.variante.create({data: variante})
-      })
-    )
-
-    return {
-      createdVariantes,
-      message: "Variante(s) criada com sucesso",
-      statusCode: HttpStatus.CREATED
-    }
+    // return {
+    //   createdVariantes,
+    //   message: "Variante(s) criada com sucesso",
+    //   statusCode: HttpStatus.CREATED
+    // }
   }
 
   async findAll() {
@@ -104,38 +104,23 @@ export class VariantesService {
     else return variante;
   }
 
-  async ensureOpcoeExist(opcoesList: OpcaoValor[], createVarianteDto: CreateVarianteDto[]  ) {
+  async ensureOpcoeExist( createVarianteDto: CreateVarianteDto[]  ) {
+    const opcoesList   : OpcaoValor[] = createVarianteDto.map( variante => variante.vrnt_opcoes ).flat();
     for ( const variante of createVarianteDto ) {
-      //para cada opcoes da variante
       for(const opc of opcoesList){
-        const opcValorList = opcoesList.map( (opc) => opc.opc_valor);
-    
-        const hasOpcao = await this.prismaService.opcao.findFirst({
-          where: {
-            opc_id: opc.opc_id,
-            prodt_id: variante.prodt_id
-          }
-        })
-    
+        const hasOpcao = await this.prismaService.opcao.findFirst({ where: { opc_id: opc.opc_id, prodt_id: variante.prodt_id } }) 
         if(!hasOpcao) throw new BadRequestException(`Opcão não cadastrada no produto ${variante.prodt_id}.`);
     
-        for(const valor of opcValorList ){
-          const hasValorOpc = await this.prismaService.opcao.findFirst({
-            where: {
-              opc_valores: { array_contains: valor.trim() },
-              prodt_id: variante.prodt_id,
-              opc_nome: opc.opc_nome
-            }
-          })
-    
-          if(!hasValorOpc) throw new BadRequestException("Valor de opcão não cadastrado.")
-        }
-      
+
+        const hasValorOpc = await this.prismaService.opcao.findFirst({
+          where: { 
+            opc_valores: {array_contains: opc.opc_valor.trim()  },
+            prodt_id: variante.prodt_id, opc_nome: opc.opc_nome 
+          }
+        });
+        if(!hasValorOpc) throw new BadRequestException(`Valor ${opc.opc_valor.trim()} não cadastrado para ${opc.opc_nome}.`)
+
       }
     }
-
-    return true
   }
-
-
 }
